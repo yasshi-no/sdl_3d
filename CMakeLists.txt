@@ -10,21 +10,22 @@ message(STATUS SDL2_LIBRARIES:${SDL2_LIBRARIES})
 add_subdirectory(src)
 
 # 実行ファイルの追加, インクルード, リンク
-add_executable(sdl_3d main.cpp)
-target_include_directories(sdl_3d PUBLIC
+add_executable(main main.cpp)
+target_include_directories(main PUBLIC
 ${SDL2_INCLUDE_DIRS}
 )
-target_link_directories(sdl_3d PUBLIC
+target_link_directories(main PUBLIC
 ${SDL2_LIBDIR}
 )
-target_link_libraries(sdl_3d PUBLIC
+target_link_libraries(main PUBLIC
     ${SDL2_LIBRARIES}
     application
+    sdl_3d
 )
 
 # コンパイルオプション
-target_compile_options(sdl_3d PUBLIC
+target_compile_options(main PUBLIC
     $<$<CONFIG:Debug>: -O0 -g -Wall>
     $<$<CONFIG:Release>: -O3 -Wall>
 )
-target_compile_features(sdl_3d PRIVATE cxx_std_11)
+target_compile_features(main PRIVATE cxx_std_11)
