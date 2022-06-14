@@ -67,7 +67,7 @@ public:
     static Matrix compute_yzrotation_matrix(double yz_angle);
 };
 
-class LocalCoordinateSystem : public CoordinateSystem
+class LocalCoordinateSystem
 {
     /* Bodyオブジェクトを配置したもの */
 private:
@@ -79,7 +79,7 @@ public:
     vector<Body*> get_bodys();
 };
 
-class WorldCoordinateSystem : public CoordinateSystem
+class WorldCoordinateSystem
 {
     /* LocalCoordinateSystemを配置したもの */
 private:
@@ -93,7 +93,7 @@ public:
     vector<LocalCoordinateSystem> get_local_coords();
 };
 
-class CameraCoordinateSystem : public CoordinateSystem
+class CameraCoordinateSystem
 {
     /* WorldCoordinateSystemを変換したもの */
 private:
@@ -105,7 +105,7 @@ public:
     void draw_debug(SDL_Renderer* renderer);
 };
 
-class ProjectionCoordinateSystem : public CoordinateSystem
+class ProjectionCoordinateSystem
 {
     /* CameraCoordinateSystemを変換したもの */
 private:
@@ -115,7 +115,7 @@ public:
     ProjectionCoordinateSystem(CameraCoordinateSystem camera_Coordinate_system);
 };
 
-class ScreenCoordinateSystem : public CoordinateSystem
+class ScreenCoordinateSystem
 {
     /* ProjectionCoordinateSystemを変換したもの */
 private:

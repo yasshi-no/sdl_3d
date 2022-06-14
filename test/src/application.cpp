@@ -87,7 +87,7 @@ void Application::run()
         SDL_SetRenderDrawColor(screen_renderer, 255, 255, 255,
                                SDL_ALPHA_OPAQUE);
         CameraCoordinateSystem camera_coords(world_coords,
-                                             Perspective(coord, 0, 0));
+                                             Perspective(coord, 0, pi / 100));
         SDL_Log("coord:%f %f %f", coord.get_x(), coord.get_y(), coord.get_z());
         // 処理した変化量の初期化
         coord = Coordinate(0.0, 0.0, 0.0);

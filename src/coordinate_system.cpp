@@ -131,7 +131,7 @@ void WorldCoordinateSystem::add_bodys(
     /* LocalCoordinateSystemオブジェクトのBodyを移動させて配置 */
     // 与えられたオブジェクトをアフィン変換行列で移動して追加
     local_coordinate_system.transform(
-        compute_affine_transformation_matrix(perspective));
+        CoordinateSystem::compute_affine_transformation_matrix(perspective));
     local_coords.push_back(local_coordinate_system);
 }
 vector<LocalCoordinateSystem> WorldCoordinateSystem::get_local_coords()
@@ -146,8 +146,8 @@ CameraCoordinateSystem::CameraCoordinateSystem(
     /* WorldCoordinateSystemオブジェクトに配置されたLocalCoordinateSystemオブジェクトをすべて移動する
      */
     local_coords = vector<LocalCoordinateSystem>();
-    Matrix matrix =
-        compute_affine_transformation_matrix(perspective);  //アフィン変換行列
+    Matrix matrix = CoordinateSystem::compute_affine_transformation_matrix(
+        perspective);  //アフィン変換行列
     // 全てのLocalCoordinateSystemオブジェクトをアフィン変換して格納
     for(auto&& local_coord : world_coordinate_system.get_local_coords()) {
         local_coord.transform(matrix);
@@ -164,10 +164,3 @@ void CameraCoordinateSystem::draw_debug(SDL_Renderer* renderer)
 #endif
 
 /* ScreenCoordinateSystemクラス */
-#ifndef NDEBUG
-ScreenCoordinateSystem::ScreenCoordinateSystem(int width, int height)
-    : width(width), height(height)
-{
-}
-// void ScreenCoordinateSystem::add_body(Body* body) { bodys.push_back(body); }
-#endif
