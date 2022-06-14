@@ -8,24 +8,4 @@ message(STATUS SDL2_LIBRARIES:${SDL2_LIBRARIES})
 
 # subdirectoryの追加
 add_subdirectory(src)
-
-# 実行ファイルの追加, インクルード, リンク
-add_executable(main main.cpp)
-target_include_directories(main PUBLIC
-${SDL2_INCLUDE_DIRS}
-)
-target_link_directories(main PUBLIC
-${SDL2_LIBDIR}
-)
-target_link_libraries(main PUBLIC
-    ${SDL2_LIBRARIES}
-    application
-    sdl_3d
-)
-
-# コンパイルオプション
-target_compile_options(main PUBLIC
-    $<$<CONFIG:Debug>: -O0 -g -Wall>
-    $<$<CONFIG:Release>: -O3 -Wall>
-)
-target_compile_features(main PRIVATE cxx_std_11)
+add_subdirectory(test)
