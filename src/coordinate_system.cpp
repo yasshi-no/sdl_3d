@@ -8,19 +8,23 @@
 Coordinate::Coordinate(double x, double y, double z) : Matrix(4, 1)
 {
     // Matrixに同次座標を格納(列ベクトル)
-    (*this)[0][0] = x;
-    (*this)[1][0] = y;
-    (*this)[2][0] = z;
-    (*this)[3][0] = 1.0;
+    set_x(x);
+    set_y(y);
+    set_z(z);
+    set_w(1.0);
 }
 Coordinate& Coordinate::operator=(Matrix matrix)
 {
     *this = Coordinate(matrix[0][0], matrix[1][0], matrix[2][0]);
     return *this;
 }
-double Coordinate::get_x() const { return (*this)[0][0]; }
-double Coordinate::get_y() const { return (*this)[1][0]; }
-double Coordinate::get_z() const { return (*this)[2][0]; }
+double Coordinate::get_x() const { return v[0][0]; }
+double Coordinate::get_y() const { return v[1][0]; }
+double Coordinate::get_z() const { return v[2][0]; }
+void Coordinate::set_x(double val) { v[0][0] = val; }
+void Coordinate::set_y(double val) { v[1][0] = val; }
+void Coordinate::set_z(double val) { v[2][0] = val; }
+void Coordinate::set_w(double val) { v[3][0] = val; }
 /* Perspectiveクラス */
 Perspective::Perspective(Coordinate coord, double xy_angle, double yz_angle)
     : coord(coord), xy_angle(xy_angle), yz_angle(yz_angle)
@@ -55,8 +59,8 @@ void Line::transform(const Matrix& matrix)
 void Line::draw(SDL_Renderer* renderer)
 {
     /* 直線を描画する. */
-    SDL_RenderDrawLine(renderer, coord1[0][0], coord1[1][0], coord2[0][0],
-                       coord2[1][0]);
+    SDL_RenderDrawLine(renderer, coord1.get_x(), coord1.get_y(), coord2.get_x(),
+                       coord2.get_y());
     return;
 }
 

@@ -9,6 +9,8 @@ class Matrix
 private:
     int row;
     int column;
+
+protected:
     vector<vector<double>> v;
 
 public:
