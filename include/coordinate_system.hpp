@@ -10,6 +10,7 @@ class Coordinate : public Matrix
     /* 3次元を表現する同次座標 */
 public:
     Coordinate(double x, double y, double z);
+    Coordinate& operator=(Matrix matrix);
 };
 
 class Perspective
@@ -29,6 +30,7 @@ class Body
     /* CoordinateSystemで描画される物体 */
 public:
     virtual void draw(SDL_Renderer* renderer);
+    virtual void transform(Matrix matrix);
 };
 
 class Line : public Body
@@ -41,6 +43,7 @@ private:
 
 public:
     Line(Coordinate coord1, Coordinate coord2);
+    void transform(Matrix matrix);
     void draw(SDL_Renderer* renderer);
 };
 
