@@ -17,4 +17,5 @@ public:
     Matrix operator*(const Matrix& mat) const;
     const vector<double>& operator[](int x) const;
     vector<double>& operator[](int x);
+    void identity();
 };

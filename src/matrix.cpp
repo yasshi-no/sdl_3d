@@ -28,5 +28,15 @@ Matrix Matrix::operator*(const Matrix& mat) const
     return ret;
 }
 
+void Matrix::identity()
+{
+    for(int i = 0; i < row; i++) {
+        for(int j = 0; j < column; j++) {
+            (*this)[i][j] = 0.0;
+        }
+        (*this)[i][i] = 1.0;
+    }
+}
+
 const vector<double>& Matrix::operator[](int x) const { return v[x]; }
 vector<double>& Matrix::operator[](int x) { return v[x]; }

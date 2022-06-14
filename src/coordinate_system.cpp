@@ -18,6 +18,12 @@ Coordinate& Coordinate::operator=(Matrix matrix)
     return *this;
 }
 
+/* Perspectiveクラス */
+Perspective::Perspective(Coordinate coord, double xy_angle, double yz_angle)
+    : coord(coord), xy_angle(xy_angle), yz_angle(yz_angle)
+{
+}
+
 /* Bodyクラス */
 void Body::draw(SDL_Renderer* renderer)
 {
@@ -41,8 +47,6 @@ void Line::transform(Matrix matrix)
     coord2 = matrix * coord2;
     return;
 }
-
-/* Lineクラス */
 void Line::draw(SDL_Renderer* renderer)
 {
     /* 直線を描画する. */
@@ -52,6 +56,12 @@ void Line::draw(SDL_Renderer* renderer)
 }
 
 /* CoordinateSystemクラス */
+Matrix CoordinateSystem::compute_affine_transformation_matrix(
+    Perspective perspective)
+{
+    Matrix ret(4, 4);
+    return ret;
+}
 #ifndef NDEBUG
 void CoordinateSystem::draw_debug(SDL_Renderer* renderer)
 {
