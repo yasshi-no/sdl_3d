@@ -92,16 +92,35 @@ void Application::run()
         // イベントの処理
         while(SDL_PollEvent(&event) != 0) {
             switch(event.type) {
+                // 終了
                 case SDL_QUIT:
                     quit = true;
                     break;
                 case SDL_KEYDOWN:
+                    // キーボードが押し下げられたとき
                     switch(event.key.keysym.sym) {
+                        // 終了
                         case SDLK_ESCAPE:
                             quit = true;
                             break;
+                        // 視点の移動
                         case SDLK_w:
+                            // 前へ
+                            coord.set_z(coord.get_z() - change_length);
+                            break;
+                        case SDLK_a:
+                            // 左へ
                             coord.set_x(coord.get_x() - change_length);
+                            break;
+                        case SDLK_s:
+                            // 後ろへ
+                            coord.set_z(coord.get_z() + change_length);
+                            break;
+                        case SDLK_d:
+                            // 右へ
+                            coord.set_x(coord.get_x() + change_length);
+                            break;
+
                         default:
                             break;
                     }
@@ -126,7 +145,7 @@ void Application::run()
             }
         }
 
-        SDL_Delay(100);
+        SDL_Delay(10);
     }
     close();
 }
