@@ -57,7 +57,7 @@ void Application::run()
 {
     bool quit = false;  // メインループを終了するか否か
     SDL_Event event;
-    // 視点の位置と角度について
+    // 視点の位置と角度の変化について
     Coordinate coord(0.0, 0.0, 0.0);
     double xy_angle = 0.0;
     double yz_angle = 0.0;
@@ -69,6 +69,14 @@ void Application::run()
     //     SDL_Log("%f %f %f\n", mat[i][0], mat[i][1], mat[i][2]);
     // }
 
+    // 直線のある世界を生成
+    LocalCoordinateSystem local_coords;
+    Line line(Coordinate(100, 100, 0), Coordinate(100, 200, 0));
+    local_coords.add_body(&line);
+    WorldCoordinateSystem world_coords;
+    world_coords.add_bodys(local_coords,
+                           Perspective(Coordinate(0, 0, 0), 0, 0));
+
     while(!quit) {
         // rendererを更新する
         SDL_RenderClear(screen_renderer);
@@ -76,16 +84,15 @@ void Application::run()
         SDL_SetRenderDrawColor(screen_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(screen_renderer, NULL);
         // ScreenCoordinateSystemの描画
-        ScreenCoordinateSystem screen(screen_width, screen_height);
-        Line line(Coordinate(100, 100, 0), Coordinate(100, 200, 0));
-        Matrix mat = CoordinateSystem::compute_affine_transformation_matrix(
-            Perspective(coord, pi / 6.0, 0));
-        line.transform(mat);
-        screen.add_body(&line);
-
         SDL_SetRenderDrawColor(screen_renderer, 255, 255, 255,
                                SDL_ALPHA_OPAQUE);
-        screen.draw_debug(screen_renderer);
+        CameraCoordinateSystem camera_coords(world_coords,
+                                             Perspective(coord, 0, 0));
+        SDL_Log("coord:%f %f %f", coord.get_x(), coord.get_y(), coord.get_z());
+        // 処理した変化量の初期化
+        coord = Coordinate(0.0, 0.0, 0.0);
+        camera_coords.draw_debug(screen_renderer);
+
         // 画面の更新
         SDL_RenderPresent(screen_renderer);
 
@@ -106,19 +113,19 @@ void Application::run()
                         // 視点の移動
                         case SDLK_w:
                             // 前へ
-                            coord.set_z(coord.get_z() - change_length);
+                            coord.set_z(-change_length);
                             break;
                         case SDLK_a:
                             // 左へ
-                            coord.set_x(coord.get_x() - change_length);
+                            coord.set_x(-change_length);
                             break;
                         case SDLK_s:
                             // 後ろへ
-                            coord.set_z(coord.get_z() + change_length);
+                            coord.set_z(change_length);
                             break;
                         case SDLK_d:
                             // 右へ
-                            coord.set_x(coord.get_x() + change_length);
+                            coord.set_x(change_length);
                             break;
 
                         default:
@@ -145,7 +152,7 @@ void Application::run()
             }
         }
 
-        SDL_Delay(10);
+        SDL_Delay(33);
     }
     close();
 }

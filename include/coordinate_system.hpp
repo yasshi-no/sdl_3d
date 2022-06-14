@@ -60,44 +60,49 @@ class CoordinateSystem
 {
     /* 物体が配置される座標系, 描画までの各変換で得られる座標系の親クラス */
 protected:
-    vector<Body*> bodys;  // 描画する物体の配列
-
 public:
     static Matrix compute_affine_transformation_matrix(Perspective perspective);
     static Matrix compute_translation_matrix(Coordinate coord);
     static Matrix compute_xyrotation_matrix(double xy_angle);
     static Matrix compute_yzrotation_matrix(double yz_angle);
-
-#ifndef NDEBUG
-    void draw_debug(SDL_Renderer* renderer);
-#endif
 };
 
 class LocalCoordinateSystem : public CoordinateSystem
 {
     /* Bodyオブジェクトを配置したもの */
 private:
+    vector<Body*> bodys;  // 描画する物体の配列
 public:
     void add_body(Body* body);
+    void transform(Matrix matrix);
+    void draw(SDL_Renderer* renderer);
+    vector<Body*> get_bodys();
 };
 
 class WorldCoordinateSystem : public CoordinateSystem
 {
     /* LocalCoordinateSystemを配置したもの */
 private:
+    vector<LocalCoordinateSystem>
+        local_coords;  // 変換したLocalCoordinateSystem
+
 public:
     WorldCoordinateSystem();
     void add_bodys(LocalCoordinateSystem local_coordinate_system,
                    Perspective perspective);
+    vector<LocalCoordinateSystem> get_local_coords();
 };
 
 class CameraCoordinateSystem : public CoordinateSystem
 {
     /* WorldCoordinateSystemを変換したもの */
 private:
+    vector<LocalCoordinateSystem> local_coords;
+
 public:
     CameraCoordinateSystem(WorldCoordinateSystem world_Coordinate_system,
                            Perspective perspective);
+    void draw_debug(SDL_Renderer* renderer);
 };
 
 class ProjectionCoordinateSystem : public CoordinateSystem
@@ -125,6 +130,6 @@ public:
         int height);
 #ifndef NDEBUG
     ScreenCoordinateSystem(int width, int height);
-    void add_body(Body* body);
+    // void add_body(Body* body);
 #endif
 };

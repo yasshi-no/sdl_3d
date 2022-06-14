@@ -106,11 +106,59 @@ Matrix CoordinateSystem::compute_yzrotation_matrix(double yz_angle)
     ret[2][2] = cos(yz_angle);
     return ret;
 }
-#ifndef NDEBUG
-void CoordinateSystem::draw_debug(SDL_Renderer* renderer)
+
+/* LocalCoordinateSystemクラス */
+void LocalCoordinateSystem::add_body(Body* body) { bodys.push_back(body); }
+void LocalCoordinateSystem::transform(Matrix matrix)
 {
-    for(Body* body : bodys) {
+    /* 各Bodyオブジェクトを行列変換する. */
+    for(auto&& body : bodys) {
+        body->transform(matrix);
+    }
+}
+void LocalCoordinateSystem::draw(SDL_Renderer* renderer)
+{
+    for(auto&& body : bodys) {
         body->draw(renderer);
+    }
+}
+vector<Body*> LocalCoordinateSystem::get_bodys() { return bodys; }
+/* WorldCoordinateSystemクラス */
+WorldCoordinateSystem::WorldCoordinateSystem() {}
+void WorldCoordinateSystem::add_bodys(
+    LocalCoordinateSystem local_coordinate_system, Perspective perspective)
+{
+    /* LocalCoordinateSystemオブジェクトのBodyを移動させて配置 */
+    // 与えられたオブジェクトをアフィン変換行列で移動して追加
+    local_coordinate_system.transform(
+        compute_affine_transformation_matrix(perspective));
+    local_coords.push_back(local_coordinate_system);
+}
+vector<LocalCoordinateSystem> WorldCoordinateSystem::get_local_coords()
+{
+    return local_coords;
+}
+
+/* CameraCoordinateSystemクラス */
+CameraCoordinateSystem::CameraCoordinateSystem(
+    WorldCoordinateSystem world_coordinate_system, Perspective perspective)
+{
+    /* WorldCoordinateSystemオブジェクトに配置されたLocalCoordinateSystemオブジェクトをすべて移動する
+     */
+    local_coords = vector<LocalCoordinateSystem>();
+    Matrix matrix =
+        compute_affine_transformation_matrix(perspective);  //アフィン変換行列
+    // 全てのLocalCoordinateSystemオブジェクトをアフィン変換して格納
+    for(auto&& local_coord : world_coordinate_system.get_local_coords()) {
+        local_coord.transform(matrix);
+        local_coords.push_back(local_coord);
+    }
+}
+#ifndef NDEBUG
+void CameraCoordinateSystem::draw_debug(SDL_Renderer* renderer)
+{
+    for(auto&& local_coord : local_coords) {
+        local_coord.draw(renderer);
     }
 }
 #endif
@@ -121,5 +169,5 @@ ScreenCoordinateSystem::ScreenCoordinateSystem(int width, int height)
     : width(width), height(height)
 {
 }
-void ScreenCoordinateSystem::add_body(Body* body) { bodys.push_back(body); }
+// void ScreenCoordinateSystem::add_body(Body* body) { bodys.push_back(body); }
 #endif
