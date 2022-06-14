@@ -58,14 +58,14 @@ void Application::run()
     bool quit = false;  // メインループを終了するか否か
     SDL_Event event;
 
-    vector<vector<double>> v1 = {{1, 2, 3}, {2, 1, 5}, {3, 1, 2}};
-    vector<vector<double>> v2 = {{2, 2, 3}, {2, 1, 5}, {3, -1, 2}};
-    Matrix mat1(v1);
-    Matrix mat2(v2);
-    Matrix mat3 = mat1 * mat2;
-    for(int i = 0; i < 3; i++) {
-        SDL_Log("%f %f %f\n", mat3[i][0], mat3[i][1], mat3[i][2]);
-    }
+    // vector<vector<double>> v1 = {{1, 2, 3}, {2, 1, 5}, {3, 1, 2}};
+    // vector<vector<double>> v2 = {{2, 2, 3}, {2, 1, 5}, {3, -1, 2}};
+    // Matrix mat1(v1);
+    // Matrix mat2(v2);
+    // Matrix mat3 = mat1 * mat2;
+    // for(int i = 0; i < 3; i++) {
+    //     SDL_Log("%f %f %f\n", mat3[i][0], mat3[i][1], mat3[i][2]);
+    // }
 
     while(!quit) {
         // rendererを更新する

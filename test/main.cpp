@@ -13,6 +13,9 @@ const int SCREEN_HEIGHT = 640;
 
 int main(int argc, char* argv[])
 {
+#ifndef NDEBUG
+    SDL_Log("debug\n");
+#endif
     Application application(SCREEN_WIDTH, SCREEN_HEIGHT);
     application.run();
 
