@@ -12,21 +12,25 @@ target_link_libraries(sdl_3d INTERFACE
 )
 target_compile_features(sdl_3d INTERFACE cxx_std_11)
 
-
 # Matrix
 add_library(matrix STATIC matrix.cpp ../include/matrix.hpp)
-target_include_directories(matrix PUBLIC 
+target_include_directories(matrix PUBLIC
     ../include/
 )
 target_compile_features(matrix PRIVATE cxx_std_11)
 
 # coordinate_system
 add_library(coordinate_system STATIC coordinate_system.cpp ../include/coordinate_system.hpp)
-target_include_directories(coordinate_system PUBLIC 
+target_include_directories(coordinate_system PUBLIC
     ../include/
+    ${SDL2_INCLUDE_DIRS}
+)
+target_link_directories(coordinate_system INTERFACE
+    ${SDL2_LIBDIR}
 )
 target_link_libraries(coordinate_system PUBLIC
     ${SDL2_LIBRARIES}
     matrix
 )
 target_compile_features(coordinate_system INTERFACE cxx_std_11)
+include_directories(${SDL2_INCLUDE_DIR})

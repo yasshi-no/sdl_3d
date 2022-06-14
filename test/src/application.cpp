@@ -58,6 +58,10 @@ void Application::run()
     bool quit = false;  // メインループを終了するか否か
     SDL_Event event;
 
+    ScreenCoordinateSystem screen(screen_width, screen_height);
+    Line line(Coordinate(100, 100, 0), Coordinate(100, 300, 100));
+    screen.add_body(&line);
+
     // vector<vector<double>> v1 = {{1, 2, 3}, {2, 1, 5}, {3, 1, 2}};
     // vector<vector<double>> v2 = {{2, 2, 3}, {2, 1, 5}, {3, -1, 2}};
     // Matrix mat1(v1);
@@ -73,6 +77,10 @@ void Application::run()
         // 背景の更新
         SDL_SetRenderDrawColor(screen_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderFillRect(screen_renderer, NULL);
+        // ScreenCoordinateSystemの描画
+        SDL_SetRenderDrawColor(screen_renderer, 255, 255, 255,
+                               SDL_ALPHA_OPAQUE);
+        screen.draw_debug(screen_renderer);
         // 画面の更新
         SDL_RenderPresent(screen_renderer);
 
@@ -81,6 +89,11 @@ void Application::run()
             switch(event.type) {
                 case SDL_QUIT:
                     quit = true;
+                    break;
+                case SDL_KEYDOWN:
+                    if(event.key.keysym.sym == SDLK_ESCAPE) {
+                        quit = true;
+                    }
                     break;
                 // case SDL_MOUSEWHEEL:
                 //     // 拡大縮小

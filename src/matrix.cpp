@@ -28,5 +28,5 @@ Matrix Matrix::operator*(const Matrix& mat) const
     return ret;
 }
 
+const vector<double>& Matrix::operator[](int x) const { return v[x]; }
 vector<double>& Matrix::operator[](int x) { return v[x]; }
-vector<double> Matrix::operator[](int x) const { return v[x]; }

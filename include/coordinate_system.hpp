@@ -1,3 +1,5 @@
+#pragma once
+
 #include <matrix.hpp>
 #include <vector>
 
@@ -6,9 +8,6 @@ using namespace std;
 class Coordinate : public Matrix
 {
     /* 3次元を表現する同次座標 */
-private:
-    Matrix coord;
-
 public:
     Coordinate(double x, double y, double z);
 };
@@ -27,14 +26,14 @@ public:
 
 class Body
 {
-    /* CoodinateSystemで描画される物体 */
+    /* CoordinateSystemで描画される物体 */
 public:
-    virtual void draw();
+    virtual void draw(SDL_Renderer* renderer);
 };
 
 class Line : public Body
 {
-    /* CoodinateSystemで描画される直線 */
+    /* CoordinateSystemで描画される直線 */
 private:
     // 直線の端点の座標
     Coordinate coord1;
@@ -42,68 +41,75 @@ private:
 
 public:
     Line(Coordinate coord1, Coordinate coord2);
-    void draw();
+    void draw(SDL_Renderer* renderer);
 };
 
-class CoodinateSystem
+class CoordinateSystem
 {
     /* 物体が配置される座標系, 描画までの各変換で得られる座標系の親クラス */
-private:
+protected:
     // TODO:これだとオーバーライドした関数を呼び出せない?
-    vector<Body> bodys;  // 描画する物体の配列
+    vector<Body*> bodys;  // 描画する物体の配列
     Matrix compute_affine_transformation_matrix(Perspective perspective);
 
 public:
 #ifndef NDEBUG
-    void draw_debug();
+    void draw_debug(SDL_Renderer* renderer);
 #endif
 };
 
-class LocalCoodinateSystem : public CoodinateSystem
+class LocalCoordinateSystem : public CoordinateSystem
 {
     /* Bodyオブジェクトを配置したもの */
 private:
 public:
-    void add_body(Body body);
+    void add_body(Body* body);
 };
 
-class WorldCoodinateSystem : public CoodinateSystem
+class WorldCoordinateSystem : public CoordinateSystem
 {
-    /* LocalCoodinateSystemを配置したもの */
+    /* LocalCoordinateSystemを配置したもの */
 private:
 public:
-    WorldCoodinateSystem();
-    void add_bodys(LocalCoodinateSystem local_coordinate_system,
+    WorldCoordinateSystem();
+    void add_bodys(LocalCoordinateSystem local_coordinate_system,
                    Perspective perspective);
 };
 
-class CameraCoodinateSystem : public CoodinateSystem
+class CameraCoordinateSystem : public CoordinateSystem
 {
-    /* WorldCoodinateSystemを変換したもの */
+    /* WorldCoordinateSystemを変換したもの */
 private:
 public:
-    CameraCoodinateSystem(WorldCoodinateSystem world_coodinate_system,
-                          Perspective perspective);
+    CameraCoordinateSystem(WorldCoordinateSystem world_Coordinate_system,
+                           Perspective perspective);
 };
 
-class ProjectionCoodinateSystem : public CoodinateSystem
+class ProjectionCoordinateSystem : public CoordinateSystem
 {
-    /* CameraCoodinateSystemを変換したもの */
+    /* CameraCoordinateSystemを変換したもの */
 private:
     Matrix compute_projection_matrix();
 
 public:
-    ProjectionCoodinateSystem(CameraCoodinateSystem camera_coodinate_system);
+    ProjectionCoordinateSystem(CameraCoordinateSystem camera_Coordinate_system);
 };
 
-class ScreenCoordinateSystem : public CoodinateSystem
+class ScreenCoordinateSystem : public CoordinateSystem
 {
     /* ProjectionCoordinateSystemを変換したもの */
 private:
-    void draw();
+    // スクリーンのサイズ
+    int width;
+    int height;
+    void draw(SDL_Renderer* renderer);
 
 public:
     ScreenCoordinateSystem(
-        ProjectionCoodinateSystem projection_coordinate_system, double width,
-        double height);
+        ProjectionCoordinateSystem projection_coordinate_system, int width,
+        int height);
+#ifndef NDEBUG
+    ScreenCoordinateSystem(int width, int height);
+    void add_body(Body* body);
+#endif
 };
