@@ -20,4 +20,5 @@ public:
     const vector<double>& operator[](int x) const;
     vector<double>& operator[](int x);
     void identity();
+    void zeros();
 };

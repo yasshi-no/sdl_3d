@@ -30,11 +30,21 @@ Matrix Matrix::operator*(const Matrix& mat) const
 
 void Matrix::identity()
 {
+    /* 単位行列を生成する. */
     for(int i = 0; i < row; i++) {
         for(int j = 0; j < column; j++) {
             (*this)[i][j] = 0.0;
         }
         (*this)[i][i] = 1.0;
+    }
+}
+void Matrix::zeros()
+{
+    /* 0行列を生成する. */
+    for(int i = 0; i < row; i++) {
+        for(int j = 0; j < column; j++) {
+            (*this)[i][j] = 0.0;
+        }
     }
 }
 

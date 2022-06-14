@@ -15,12 +15,25 @@ Coordinate::Coordinate(double x, double y, double z) : Matrix(4, 1)
 }
 Coordinate& Coordinate::operator=(Matrix matrix)
 {
-    *this = Coordinate(matrix[0][0], matrix[1][0], matrix[2][0]);
+    set_x(matrix[0][0]);
+    set_y(matrix[1][0]);
+    set_z(matrix[2][0]);
+    set_w(matrix[3][0]);
     return *this;
+}
+void Coordinate::normalize()
+{
+    /* 全成分をw成分で割る. */
+    double w = get_w();
+    set_x(get_x() / w);
+    set_y(get_y() / w);
+    set_z(get_z() / w);
+    set_w(1.0);
 }
 double Coordinate::get_x() const { return v[0][0]; }
 double Coordinate::get_y() const { return v[1][0]; }
 double Coordinate::get_z() const { return v[2][0]; }
+double Coordinate::get_w() const { return v[3][0]; }
 void Coordinate::set_x(double val) { v[0][0] = val; }
 void Coordinate::set_y(double val) { v[1][0] = val; }
 void Coordinate::set_z(double val) { v[2][0] = val; }
@@ -42,7 +55,16 @@ void Body::transform(const Matrix& matrix)
     /* 座標を行列変換する. */
     return;
 }
-
+void Body::transform_and_div(const Matrix& matrix)
+{
+    /* 座標を行列変換し, w成分で全成分を割る. */
+    return;
+}
+bool Body::should_draw(double near, double far)
+{
+    /* z成分は描画範囲に入っているか. */
+    return false;
+}
 /* Lineクラス */
 Line::Line(Coordinate coord1, Coordinate coord2)
     : coord1(coord1), coord2(coord2)
@@ -50,10 +72,27 @@ Line::Line(Coordinate coord1, Coordinate coord2)
 }
 void Line::transform(const Matrix& matrix)
 { /* 座標を行列変換する. */
+    // for(int i = 0; i < 4; i++) {
+    //     SDL_Log("%f %f %f %f\n", matrix[i][0], matrix[i][1], matrix[i][2],
+    //             matrix[i][3]);
+    // }
+
     coord1 = matrix * coord1;
     coord2 = matrix * coord2;
-    SDL_Log("%f %f %f\n", coord1.get_x(), coord1.get_y(), coord1.get_z());
-    SDL_Log("%f %f %f\n", coord2.get_x(), coord2.get_y(), coord2.get_z());
+    // SDL_Log("1 %f %f %f %f\n2 %f %f %f %f\n", coord1.get_x(), coord1.get_y(),
+    //         coord1.get_z(), coord1.get_w(), coord2.get_x(), coord2.get_y(),
+    //         coord2.get_z(), coord1.get_w());
+    return;
+}
+void Line::transform_and_div(const Matrix& matrix)
+{
+    /* 座標を行列変換し, w成分で全成分を割る. */
+    transform(matrix);
+    coord1.normalize();
+    coord2.normalize();
+    SDL_Log("div1 %f %f %f %f   2   %f %f %f %f\n", coord1.get_x(),
+            coord1.get_y(), coord1.get_z(), coord1.get_w(), coord2.get_x(),
+            coord2.get_y(), coord2.get_z(), coord1.get_w());
     return;
 }
 void Line::draw(SDL_Renderer* renderer)
@@ -61,9 +100,17 @@ void Line::draw(SDL_Renderer* renderer)
     /* 直線を描画する. */
     SDL_RenderDrawLine(renderer, coord1.get_x(), coord1.get_y(), coord2.get_x(),
                        coord2.get_y());
+    // SDL_Log("%f %f %f %f\n", coord1.get_x(), coord1.get_y(), coord2.get_x(),
+    //         coord2.get_y());
     return;
 }
-
+bool Line::should_draw(double near, double far)
+{
+    /* z成分は描画範囲に入っているか. */
+    double z1 = coord1.get_z();
+    double z2 = coord2.get_z();
+    return near <= z1 && z1 <= far && near <= z2 && z2 <= far;
+}
 /* CoordinateSystemクラス */
 Matrix CoordinateSystem::compute_affine_transformation_matrix(
     Perspective perspective)
@@ -116,11 +163,33 @@ void LocalCoordinateSystem::transform(Matrix matrix)
         body->transform(matrix);
     }
 }
+void LocalCoordinateSystem::transform_and_div(const Matrix& matrix)
+{
+    /* 各Bodyオブジェクトを行列変換し, w成分で割る. */
+    for(auto&& body : bodys) {
+        body->transform_and_div(matrix);
+    }
+}
 void LocalCoordinateSystem::draw(SDL_Renderer* renderer)
 {
     for(auto&& body : bodys) {
         body->draw(renderer);
     }
+}
+bool LocalCoordinateSystem::delete_undrawable_body(double near, double far)
+{
+    /* z成分は描画範囲に入っていないBodyオブジェクトを削除する.
+     * 返り値は描画するオブジェクトが存在するか*/
+    vector<Body*> new_bodys;
+    bool ret = false;
+    for(auto&& body : bodys) {
+        if(body->should_draw(near, far)) {
+            ret = true;
+            new_bodys.push_back(body);
+        }
+    }
+
+    return ret;
 }
 vector<Body*> LocalCoordinateSystem::get_bodys() { return bodys; }
 /* WorldCoordinateSystemクラス */
@@ -152,6 +221,77 @@ CameraCoordinateSystem::CameraCoordinateSystem(
     for(auto&& local_coord : world_coordinate_system.get_local_coords()) {
         local_coord.transform(matrix);
         local_coords.push_back(local_coord);
+    }
+}
+vector<LocalCoordinateSystem> CameraCoordinateSystem::get_local_coords()
+{
+    return local_coords;
+}
+
+/* ProjectionCoordinateClass */
+ProjectionCoordinateSystem::ProjectionCoordinateSystem(
+    CameraCoordinateSystem camera_coordinate_system, int width, int height,
+    double near, double far, double view_angle)
+{
+    // 射影変換行列で各LocalCoordinateSystemオブジェクトを変換して追加する
+    local_coords = vector<LocalCoordinateSystem>();
+    Matrix matrix = compute_projection_matrix(width, height, near, far,
+                                              view_angle);  // 射影変換行列
+    for(auto&& local_coord : camera_coordinate_system.get_local_coords()) {
+        // z軸の描画範囲の条件を満たすもののみ, 変換して追加
+        local_coord.delete_undrawable_body(near, far);
+        local_coord.transform_and_div(matrix);
+        local_coords.push_back(local_coord);
+    }
+}
+Matrix ProjectionCoordinateSystem::compute_projection_matrix(
+    int width, int height, double near, double far, double view_angle)
+{
+    Matrix ret(4, 4);
+    ret.zeros();
+    ret[0][0] = height / width / tan(view_angle / 2.0);
+    ret[1][1] = 1 / tan(view_angle / 2.0);
+    ret[2][2] = far / (far - near), ret[2][3] = -far * near / (far - near);
+    ret[3][2] = 1.0, ret[3][3] = 0.0;
+    // for(int i = 0; i < 4; i++) {
+    //     SDL_Log("%f %f %f %f\n", ret[i][0], ret[i][1], ret[i][2], ret[i][3]);
+    // }
+
+    return ret;
+}
+vector<LocalCoordinateSystem> ProjectionCoordinateSystem::get_local_coords()
+{
+    return local_coords;
+}
+
+/* ScreenCoordinateClass */
+ScreenCoordinateSystem::ScreenCoordinateSystem(
+    ProjectionCoordinateSystem projection_coordinate_system, int width,
+    int height)
+    : width(width), height(height)
+{
+    Matrix matrix = compute_screen_transformation_matrix();
+    for(auto&& local_coord : projection_coordinate_system.get_local_coords()) {
+        local_coord.transform(matrix);
+        local_coords.push_back(local_coord);
+    }
+}
+Matrix ScreenCoordinateSystem::compute_screen_transformation_matrix()
+{
+    /* スクリーン変換行列を計算する */
+    Matrix matrix(4, 4);
+    matrix.identity();
+    matrix[0][0] = width / 2.0;
+    matrix[1][1] = height / 2.0;
+    matrix[0][3] = width / 2.0;
+    matrix[1][3] = height / 2.0;
+    return matrix;
+}
+
+void ScreenCoordinateSystem::draw(SDL_Renderer* renderer)
+{
+    for(auto&& local_coord : local_coords) {
+        local_coord.draw(renderer);
     }
 }
 #ifndef NDEBUG

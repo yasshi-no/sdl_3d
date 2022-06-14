@@ -16,9 +16,11 @@ private:
 public:
     Coordinate(double x, double y, double z);
     Coordinate& operator=(Matrix matrix);
+    void normalize();
     double get_x() const;
     double get_y() const;
     double get_z() const;
+    double get_w() const;
     void set_x(double x);
     void set_y(double x);
     void set_z(double x);
@@ -40,6 +42,8 @@ class Body
 public:
     virtual void draw(SDL_Renderer* renderer);
     virtual void transform(const Matrix& matrix);
+    virtual void transform_and_div(const Matrix& matrix);
+    virtual bool should_draw(double near, double far);
 };
 
 class Line : public Body
@@ -53,7 +57,9 @@ private:
 public:
     Line(Coordinate coord1, Coordinate coord2);
     void transform(const Matrix& matrix);
+    void transform_and_div(const Matrix& matrix);
     void draw(SDL_Renderer* renderer);
+    bool should_draw(double near, double far);
 };
 
 class CoordinateSystem
@@ -76,6 +82,8 @@ public:
     void add_body(Body* body);
     void transform(Matrix matrix);
     void draw(SDL_Renderer* renderer);
+    void transform_and_div(const Matrix& matrix);
+    bool delete_undrawable_body(double near, double far);
     vector<Body*> get_bodys();
 };
 
@@ -103,16 +111,22 @@ public:
     CameraCoordinateSystem(WorldCoordinateSystem world_Coordinate_system,
                            Perspective perspective);
     void draw_debug(SDL_Renderer* renderer);
+    vector<LocalCoordinateSystem> get_local_coords();
 };
 
 class ProjectionCoordinateSystem
 {
     /* CameraCoordinateSystemを変換したもの */
 private:
-    Matrix compute_projection_matrix();
+    vector<LocalCoordinateSystem> local_coords;
+    Matrix compute_projection_matrix(int width, int height, double near,
+                                     double far, double view_angle);
 
 public:
-    ProjectionCoordinateSystem(CameraCoordinateSystem camera_Coordinate_system);
+    ProjectionCoordinateSystem(CameraCoordinateSystem camera_Coordinate_system,
+                               int width, int height, double near, double far,
+                               double view_angle);
+    vector<LocalCoordinateSystem> get_local_coords();
 };
 
 class ScreenCoordinateSystem
@@ -122,14 +136,12 @@ private:
     // スクリーンのサイズ
     int width;
     int height;
-    void draw(SDL_Renderer* renderer);
+    vector<LocalCoordinateSystem> local_coords;
+    Matrix compute_screen_transformation_matrix();
 
 public:
     ScreenCoordinateSystem(
         ProjectionCoordinateSystem projection_coordinate_system, int width,
         int height);
-#ifndef NDEBUG
-    ScreenCoordinateSystem(int width, int height);
-    // void add_body(Body* body);
-#endif
+    void draw(SDL_Renderer* renderer);
 };

@@ -69,14 +69,6 @@ void Application::run()
     //     SDL_Log("%f %f %f\n", mat[i][0], mat[i][1], mat[i][2]);
     // }
 
-    // 直線のある世界を生成
-    LocalCoordinateSystem local_coords;
-    Line line(Coordinate(100, 100, 0), Coordinate(100, 200, 0));
-    local_coords.add_body(&line);
-    WorldCoordinateSystem world_coords;
-    world_coords.add_bodys(local_coords,
-                           Perspective(Coordinate(0, 0, 0), 0, 0));
-
     while(!quit) {
         // rendererを更新する
         SDL_RenderClear(screen_renderer);
@@ -86,12 +78,24 @@ void Application::run()
         // ScreenCoordinateSystemの描画
         SDL_SetRenderDrawColor(screen_renderer, 255, 255, 255,
                                SDL_ALPHA_OPAQUE);
-        CameraCoordinateSystem camera_coords(world_coords,
-                                             Perspective(coord, 0, pi / 100));
-        SDL_Log("coord:%f %f %f", coord.get_x(), coord.get_y(), coord.get_z());
-        // 処理した変化量の初期化
-        coord = Coordinate(0.0, 0.0, 0.0);
-        camera_coords.draw_debug(screen_renderer);
+        // 直線のある世界を生成
+        LocalCoordinateSystem local_coords;
+        Line line(Coordinate(320, 0, 500), Coordinate(320, 320, 500));
+        local_coords.add_body(&line);
+        WorldCoordinateSystem world_coords;
+        world_coords.add_bodys(local_coords,
+                               Perspective(Coordinate(0, 0, 0), 0, 0));
+        CameraCoordinateSystem camera_coords(
+            world_coords, Perspective(coord, xy_angle, yz_angle));
+        // yz_angle += 0.01;
+        ProjectionCoordinateSystem proj_coords(
+            camera_coords, screen_width, screen_height, 10, 1000, pi / 1.5);
+        ScreenCoordinateSystem screen_coords(proj_coords, screen_width,
+                                             screen_height);
+        // SDL_Log("coord:%f %f %f", coord.get_x(), coord.get_y(),
+        // coord.get_z()); 処理した変化量の初期化
+        // coord = Coordinate(0.0, 0.0, 0.0);
+        screen_coords.draw(screen_renderer);
 
         // 画面の更新
         SDL_RenderPresent(screen_renderer);
@@ -113,19 +117,27 @@ void Application::run()
                         // 視点の移動
                         case SDLK_w:
                             // 前へ
-                            coord.set_z(-change_length);
+                            coord.set_z(coord.get_z() - change_length);
                             break;
                         case SDLK_a:
                             // 左へ
-                            coord.set_x(-change_length);
+                            coord.set_x(coord.get_x() - change_length);
                             break;
                         case SDLK_s:
                             // 後ろへ
-                            coord.set_z(change_length);
+                            coord.set_z(coord.get_z() + change_length);
                             break;
                         case SDLK_d:
                             // 右へ
-                            coord.set_x(change_length);
+                            coord.set_x(coord.get_x() + change_length);
+                            break;
+                        case SDLK_UP:
+                            // 上へ
+                            coord.set_y(coord.get_y() - change_length);
+                            break;
+                        case SDLK_DOWN:
+                            // 下へ
+                            coord.set_y(coord.get_y() + change_length);
                             break;
 
                         default:
