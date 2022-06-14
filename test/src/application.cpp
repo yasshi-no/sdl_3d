@@ -59,17 +59,25 @@ void Application::run()
     SDL_Event event;
 
     ScreenCoordinateSystem screen(screen_width, screen_height);
-    Line line(Coordinate(100, 100, 0), Coordinate(100, 300, 100));
+    Line line(Coordinate(100, 100, 0), Coordinate(100, 200, 0));
+    double pi = 3.14;
+    Matrix mat = CoordinateSystem::compute_affine_transformation_matrix(
+        Perspective(Coordinate(0, 0, 0), pi / 6.0, 0));
+    for(int i = 0; i < 3; i++) {
+        SDL_Log("%f %f %f\n", mat[i][0], mat[i][1], mat[i][2]);
+    }
+
+    line.transform(mat);
     screen.add_body(&line);
 
-    // vector<vector<double>> v1 = {{1, 2, 3}, {2, 1, 5}, {3, 1, 2}};
-    // vector<vector<double>> v2 = {{2, 2, 3}, {2, 1, 5}, {3, -1, 2}};
-    // Matrix mat1(v1);
-    // Matrix mat2(v2);
-    // Matrix mat3 = mat1 * mat2;
-    // for(int i = 0; i < 3; i++) {
-    //     SDL_Log("%f %f %f\n", mat3[i][0], mat3[i][1], mat3[i][2]);
-    // }
+    vector<vector<double>> v2 = {{2, 2, 3}, {2, 1, 5}, {3, -1, 2}};
+    Matrix mat1(3, 3);
+    mat1.identity();
+    Matrix mat2(v2);
+    Matrix mat3 = mat1 * mat2;
+    for(int i = 0; i < 3; i++) {
+        SDL_Log("%f %f %f\n", mat3[i][0], mat3[i][1], mat3[i][2]);
+    }
 
     while(!quit) {
         // rendererを更新する

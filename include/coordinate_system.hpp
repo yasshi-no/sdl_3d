@@ -11,18 +11,19 @@ class Coordinate : public Matrix
 public:
     Coordinate(double x, double y, double z);
     Coordinate& operator=(Matrix matrix);
+    double get_x() const;
+    double get_y() const;
+    double get_z() const;
 };
 
 class Perspective
 {
     /* 視点の座標と方向 */
-private:
+public:
+    Perspective(Coordinate coord, double xy_angle, double yz_angle);
     Coordinate coord;
     double xy_angle;
     double yz_angle;
-
-public:
-    Perspective(Coordinate coord, double xy_angle, double yz_angle);
 };
 
 class Body
@@ -30,7 +31,7 @@ class Body
     /* CoordinateSystemで描画される物体 */
 public:
     virtual void draw(SDL_Renderer* renderer);
-    virtual void transform(Matrix matrix);
+    virtual void transform(const Matrix& matrix);
 };
 
 class Line : public Body
@@ -43,7 +44,7 @@ private:
 
 public:
     Line(Coordinate coord1, Coordinate coord2);
-    void transform(Matrix matrix);
+    void transform(const Matrix& matrix);
     void draw(SDL_Renderer* renderer);
 };
 
@@ -51,11 +52,14 @@ class CoordinateSystem
 {
     /* 物体が配置される座標系, 描画までの各変換で得られる座標系の親クラス */
 protected:
-    // TODO:これだとオーバーライドした関数を呼び出せない?
     vector<Body*> bodys;  // 描画する物体の配列
-    Matrix compute_affine_transformation_matrix(Perspective perspective);
 
 public:
+    static Matrix compute_affine_transformation_matrix(Perspective perspective);
+    static Matrix compute_translation_matrix(Coordinate coord);
+    static Matrix compute_xyrotation_matrix(double xy_angle);
+    static Matrix compute_yzrotation_matrix(double yz_angle);
+
 #ifndef NDEBUG
     void draw_debug(SDL_Renderer* renderer);
 #endif

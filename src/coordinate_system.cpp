@@ -1,5 +1,6 @@
 #include <SDL.h>
 
+#include <cmath>
 #include <coordinate_system.hpp>
 #include <matrix.hpp>
 
@@ -17,7 +18,9 @@ Coordinate& Coordinate::operator=(Matrix matrix)
     *this = Coordinate(matrix[0][0], matrix[1][0], matrix[2][0]);
     return *this;
 }
-
+double Coordinate::get_x() const { return (*this)[0][0]; }
+double Coordinate::get_y() const { return (*this)[1][0]; }
+double Coordinate::get_z() const { return (*this)[2][0]; }
 /* Perspectiveクラス */
 Perspective::Perspective(Coordinate coord, double xy_angle, double yz_angle)
     : coord(coord), xy_angle(xy_angle), yz_angle(yz_angle)
@@ -30,7 +33,7 @@ void Body::draw(SDL_Renderer* renderer)
     /* 物体を描画する. */
     return;
 }
-void Body::transform(Matrix matrix)
+void Body::transform(const Matrix& matrix)
 {
     /* 座標を行列変換する. */
     return;
@@ -41,10 +44,12 @@ Line::Line(Coordinate coord1, Coordinate coord2)
     : coord1(coord1), coord2(coord2)
 {
 }
-void Line::transform(Matrix matrix)
+void Line::transform(const Matrix& matrix)
 { /* 座標を行列変換する. */
     coord1 = matrix * coord1;
     coord2 = matrix * coord2;
+    SDL_Log("%f %f %f\n", coord1.get_x(), coord1.get_y(), coord1.get_z());
+    SDL_Log("%f %f %f\n", coord2.get_x(), coord2.get_y(), coord2.get_z());
     return;
 }
 void Line::draw(SDL_Renderer* renderer)
@@ -59,7 +64,42 @@ void Line::draw(SDL_Renderer* renderer)
 Matrix CoordinateSystem::compute_affine_transformation_matrix(
     Perspective perspective)
 {
+    /* アフィン変換行列を計算する. */
+    Matrix ret = compute_yzrotation_matrix(perspective.yz_angle) *
+                 compute_xyrotation_matrix(perspective.xy_angle) *
+                 compute_translation_matrix(perspective.coord);
+    return ret;
+}
+Matrix CoordinateSystem::compute_translation_matrix(Coordinate coord)
+{
+    /* 平行移動するための行列を計算する. */
     Matrix ret(4, 4);
+    ret.identity();
+    ret[0][3] = coord.get_x();
+    ret[1][3] = coord.get_y();
+    ret[2][3] = coord.get_z();
+    return ret;
+}
+Matrix CoordinateSystem::compute_xyrotation_matrix(double xy_angle)
+{
+    /* z軸回りの回転のための行列を計算する. */
+    Matrix ret(4, 4);
+    ret.identity();
+    ret[0][0] = cos(xy_angle);
+    ret[1][0] = sin(xy_angle);
+    ret[0][1] = -sin(xy_angle);
+    ret[1][1] = cos(xy_angle);
+    return ret;
+}
+Matrix CoordinateSystem::compute_yzrotation_matrix(double yz_angle)
+{
+    /* x軸回りの回転のための行列を計算する. */
+    Matrix ret(4, 4);
+    ret.identity();
+    ret[1][1] = cos(yz_angle);
+    ret[2][1] = sin(yz_angle);
+    ret[1][2] = -sin(yz_angle);
+    ret[2][2] = cos(yz_angle);
     return ret;
 }
 #ifndef NDEBUG
