@@ -19,6 +19,12 @@ target_include_directories(matrix PUBLIC
 )
 target_compile_features(matrix PRIVATE cxx_std_11)
 
+# coordinate
+add_library(coordinate STATIC coordinate.cpp ../include/coordinate.hpp)
+target_include_directories(coordinate PUBLIC
+    ../include/
+)
+
 # coordinate_system
 add_library(coordinate_system STATIC coordinate_system.cpp ../include/coordinate_system.hpp)
 target_include_directories(coordinate_system PUBLIC
@@ -31,6 +37,7 @@ target_link_directories(coordinate_system INTERFACE
 target_link_libraries(coordinate_system PUBLIC
     ${SDL2_LIBRARIES}
     matrix
+    coordinate
 )
 target_compile_features(coordinate_system INTERFACE cxx_std_11)
 include_directories(${SDL2_INCLUDE_DIR})
