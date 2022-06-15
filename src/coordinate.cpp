@@ -13,6 +13,14 @@ Coordinate::Coordinate(double x, double y, double z) : Matrix(4, 1)
     set_z(z);
     set_w(1.0);
 }
+Coordinate::Coordinate(const Matrix& matrix) : Matrix(4, 1)
+{
+    // Matrixに同次座標を格納(列ベクトル)
+    set_x(matrix[0][0]);
+    set_y(matrix[1][0]);
+    set_z(matrix[2][0]);
+    set_w(matrix[3][0]);
+}
 Coordinate& Coordinate::operator=(Matrix matrix)
 {
     // matrixの1列目の成分を格納
@@ -27,6 +35,12 @@ Coordinate Coordinate::operator+(const Coordinate& coord) const
     /* x,y,z成分を加算する. */
     Coordinate ret(get_x() + coord.get_x(), get_y() + coord.get_y(),
                    get_z() + coord.get_z());
+    return ret;
+}
+Coordinate Coordinate::operator-() const
+{
+    /* 全ての成分の符号を反転させる. */
+    Coordinate ret(-get_x(), -get_y(), -get_z());
     return ret;
 }
 void Coordinate::normalize()
@@ -59,5 +73,11 @@ Perspective Perspective::operator+(const Perspective& perspective) const
 {
     Perspective ret(coord + perspective.coord, zx_angle + perspective.zx_angle,
                     yz_angle + perspective.yz_angle);
+    return ret;
+}
+Perspective Perspective::operator-() const
+{
+    /* 全ての成分を反転させる. */
+    Perspective ret(-coord, -zx_angle, -yz_angle);
     return ret;
 }

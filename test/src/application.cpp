@@ -60,7 +60,7 @@ void Application::run()
     // 視点の位置と角度の変化について
     Perspective perspective(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
     double change_length = 20.0;
-    double change_angle = 0.01;
+    double change_angle = 0.05;
 
     double pi = 3.14;
 
@@ -86,21 +86,32 @@ void Application::run()
                                    Coordinate(0.0, 0.0, square_z)));
 
     while(!quit) {
-        // rendererを更新する
-        // SDL_RenderClear(screen_renderer);
+        // 描画をリセットする
         screen.clear();
         // 背景の更新
-        // SDL_SetRenderDrawColor(screen_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-        // SDL_RenderFillRect(screen_renderer, NULL);
         screen.set_draw_color(Color(0, 0, 0, SDL_ALPHA_OPAQUE));
         screen.fill_rect();
-        // ScreenCoordinateSystemの描画
-        // SDL_SetRenderDrawColor(screen_renderer, 255, 255, 255,
-        //                        SDL_ALPHA_OPAQUE);
-        screen.set_draw_color(Color(255, 255, 255, SDL_ALPHA_OPAQUE));
 
         // 現在の視点の位置と方向を計算
-        perspective = perspective + perspective_change;
+        // 視点の方向に進むよう回転
+        Matrix affine = CoordinateSystem::compute_affine_transformation_matrix(
+            Perspective(Coordinate(0.0, 0.0, 0.0), perspective.zx_angle,
+                        -perspective.yz_angle));
+        // 回転した変化量を格納
+        Perspective rotationed_perspective_change(
+            Coordinate(affine * perspective_change.coord),
+            perspective_change.zx_angle, perspective_change.yz_angle);
+        // 変化の更新
+        perspective = perspective + rotationed_perspective_change;
+        SDL_Log("now   %f %f %f, %f %f", perspective.coord.get_x(),
+                perspective.coord.get_y(), perspective.coord.get_z(),
+                perspective.zx_angle, perspective.yz_angle);
+        // SDL_Log("change%f %f %f, %f %f",
+        //         rotationed_perspective_change.coord.get_x(),
+        //         rotationed_perspective_change.coord.get_y(),
+        //         rotationed_perspective_change.coord.get_z(),
+        //         rotationed_perspective_change.zx_angle,
+        //         rotationed_perspective_change.yz_angle);
         // 視点の方向の変化を初期化
         perspective_change.zx_angle = 0.0;
         perspective_change.yz_angle = 0.0;
@@ -108,13 +119,16 @@ void Application::run()
         WorldCoordinateSystem world_coords;
         world_coords.add_bodys(local_coords,
                                Perspective(Coordinate(0, 0, 0), 0, 0));
-        CameraCoordinateSystem camera_coords(world_coords, perspective);
+        CameraCoordinateSystem camera_coords(world_coords, -perspective);
         ProjectionCoordinateSystem proj_coords(
-            camera_coords, screen_width, screen_height, 1, 1000, pi / 1.5);
+            camera_coords, screen_width, screen_height, 1, 10000, pi / 3.0);
+        // ScreenCoordinateSystemの描画
+        screen.set_draw_color(Color(255, 255, 255, SDL_ALPHA_OPAQUE));
         ScreenCoordinateSystem screen_coords(proj_coords, screen_width,
                                              screen_height);
         screen_coords.draw(screen);
 
+        SDL_SetRelativeMouseMode(SDL_TRUE);
         // 画面の更新
         screen.update();
 
@@ -135,27 +149,27 @@ void Application::run()
                         // 視点の移動
                         case SDLK_w:
                             // 前へ
-                            perspective_change.coord.set_z(-change_length);
+                            perspective_change.coord.set_z(change_length);
                             break;
                         case SDLK_a:
                             // 左へ
-                            perspective_change.coord.set_x(change_length);
+                            perspective_change.coord.set_x(-change_length);
                             break;
                         case SDLK_s:
                             // 後ろへ
-                            perspective_change.coord.set_z(change_length);
+                            perspective_change.coord.set_z(-change_length);
                             break;
                         case SDLK_d:
                             // 右へ
-                            perspective_change.coord.set_x(-change_length);
+                            perspective_change.coord.set_x(change_length);
                             break;
                         case SDLK_UP:
                             // 上へ
-                            perspective_change.coord.set_y(change_length);
+                            perspective_change.coord.set_y(-change_length);
                             break;
                         case SDLK_DOWN:
                             // 下へ
-                            perspective_change.coord.set_y(-change_length);
+                            perspective_change.coord.set_y(change_length);
                             break;
                         default:
                             break;
@@ -195,8 +209,8 @@ void Application::run()
                     break;
                 case SDL_MOUSEMOTION:
                     // 回転の操作
-                    perspective_change.zx_angle = event.motion.xrel * 0.01;
-                    perspective_change.yz_angle = event.motion.yrel * 0.01;
+                    perspective_change.zx_angle = -event.motion.xrel * 0.01;
+                    perspective_change.yz_angle = -event.motion.yrel * 0.01;
                 default:
                     break;
             }
