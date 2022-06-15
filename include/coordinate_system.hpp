@@ -7,7 +7,7 @@ using namespace std;
 
 class Coordinate : public Matrix
 {
-    /* 3次元を表現する同次座標 */
+    /* 3次元を表現する同次座標, 右手系 */
 private:
     const vector<double>& operator[](int x) const;
     vector<double>& operator[](int x);
@@ -110,7 +110,6 @@ private:
 public:
     CameraCoordinateSystem(WorldCoordinateSystem world_Coordinate_system,
                            Perspective perspective);
-    void draw_debug(SDL_Renderer* renderer);
     vector<LocalCoordinateSystem> get_local_coords();
 };
 

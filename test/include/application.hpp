@@ -6,8 +6,9 @@ class Application
 {
     /* SDL2のアプリケーションを管理するクラス. */
 private:
-    double screen_width;
-    double screen_height;
+    // スクリーンのサイズ
+    int screen_width;
+    int screen_height;
     SDL_Window* window;
     SDL_Renderer* screen_renderer;
 

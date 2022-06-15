@@ -5,6 +5,7 @@
 Matrix::Matrix(const vector<vector<double>>& v)
     : row(v.size()), column(v.front().size()), v(v)
 {
+    /* 2次元double配列vを行列に変換 */
 }
 
 Matrix::Matrix(int row, int column)
@@ -12,10 +13,12 @@ Matrix::Matrix(int row, int column)
       column(column),
       v(vector<vector<double>>(row, vector<double>(column)))
 {
+    /* 行列のサイズのみ指定 */
 }
 
 Matrix Matrix::operator*(const Matrix& mat) const
 {
+    /* 行列積を計算する. */
     Matrix ret(row, mat.column);
     for(int i = 0; i < row; i++) {
         for(int j = 0; j < mat.column; j++) {

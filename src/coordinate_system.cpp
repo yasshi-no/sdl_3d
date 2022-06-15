@@ -15,6 +15,7 @@ Coordinate::Coordinate(double x, double y, double z) : Matrix(4, 1)
 }
 Coordinate& Coordinate::operator=(Matrix matrix)
 {
+    // matrixの1列目の成分を格納
     set_x(matrix[0][0]);
     set_y(matrix[1][0]);
     set_z(matrix[2][0]);
@@ -38,10 +39,14 @@ void Coordinate::set_x(double val) { v[0][0] = val; }
 void Coordinate::set_y(double val) { v[1][0] = val; }
 void Coordinate::set_z(double val) { v[2][0] = val; }
 void Coordinate::set_w(double val) { v[3][0] = val; }
+
 /* Perspectiveクラス */
 Perspective::Perspective(Coordinate coord, double xy_angle, double yz_angle)
     : coord(coord), xy_angle(xy_angle), yz_angle(yz_angle)
 {
+    /* coordにより視点の位置を決定する. その後に視点の方向をfoo_angleで決定する.
+        決定の順番に注意.
+     */
 }
 
 /* Bodyクラス */
@@ -71,12 +76,12 @@ Line::Line(Coordinate coord1, Coordinate coord2)
 {
 }
 void Line::transform(const Matrix& matrix)
-{ /* 座標を行列変換する. */
+{
+    /* 座標を行列変換する. */
     // for(int i = 0; i < 4; i++) {
     //     SDL_Log("%f %f %f %f\n", matrix[i][0], matrix[i][1], matrix[i][2],
     //             matrix[i][3]);
     // }
-
     coord1 = matrix * coord1;
     coord2 = matrix * coord2;
     // SDL_Log("1 %f %f %f %f\n2 %f %f %f %f\n", coord1.get_x(), coord1.get_y(),
@@ -100,8 +105,6 @@ void Line::draw(SDL_Renderer* renderer)
     /* 直線を描画する. */
     SDL_RenderDrawLine(renderer, coord1.get_x(), coord1.get_y(), coord2.get_x(),
                        coord2.get_y());
-    // SDL_Log("%f %f %f %f\n", coord1.get_x(), coord1.get_y(), coord2.get_x(),
-    //         coord2.get_y());
     return;
 }
 bool Line::should_draw(double near, double far)
@@ -111,11 +114,12 @@ bool Line::should_draw(double near, double far)
     double z2 = coord2.get_z();
     return near <= z1 && z1 <= far && near <= z2 && z2 <= far;
 }
+
 /* CoordinateSystemクラス */
 Matrix CoordinateSystem::compute_affine_transformation_matrix(
     Perspective perspective)
 {
-    /* アフィン変換行列を計算する. */
+    /* アフィン変換行列を計算する. なお, 平行移動してから回転する. */
     Matrix ret = compute_yzrotation_matrix(perspective.yz_angle) *
                  compute_xyrotation_matrix(perspective.xy_angle) *
                  compute_translation_matrix(perspective.coord);
@@ -172,6 +176,7 @@ void LocalCoordinateSystem::transform_and_div(const Matrix& matrix)
 }
 void LocalCoordinateSystem::draw(SDL_Renderer* renderer)
 {
+    /* 全てのBodyオブジェクトを描画する */
     for(auto&& body : bodys) {
         body->draw(renderer);
     }
@@ -184,6 +189,7 @@ bool LocalCoordinateSystem::delete_undrawable_body(double near, double far)
     bool ret = false;
     for(auto&& body : bodys) {
         if(body->should_draw(near, far)) {
+            // bodyが描画可能なz成分の場合
             ret = true;
             new_bodys.push_back(body);
         }
@@ -247,16 +253,13 @@ ProjectionCoordinateSystem::ProjectionCoordinateSystem(
 Matrix ProjectionCoordinateSystem::compute_projection_matrix(
     int width, int height, double near, double far, double view_angle)
 {
+    /* 射影変換行列を計算する. */
     Matrix ret(4, 4);
     ret.zeros();
     ret[0][0] = height / width / tan(view_angle / 2.0);
     ret[1][1] = 1 / tan(view_angle / 2.0);
     ret[2][2] = far / (far - near), ret[2][3] = -far * near / (far - near);
     ret[3][2] = 1.0, ret[3][3] = 0.0;
-    // for(int i = 0; i < 4; i++) {
-    //     SDL_Log("%f %f %f %f\n", ret[i][0], ret[i][1], ret[i][2], ret[i][3]);
-    // }
-
     return ret;
 }
 vector<LocalCoordinateSystem> ProjectionCoordinateSystem::get_local_coords()
@@ -264,13 +267,14 @@ vector<LocalCoordinateSystem> ProjectionCoordinateSystem::get_local_coords()
     return local_coords;
 }
 
-/* ScreenCoordinateClass */
+/* ScreenCoordinateSystemクラス */
 ScreenCoordinateSystem::ScreenCoordinateSystem(
     ProjectionCoordinateSystem projection_coordinate_system, int width,
     int height)
     : width(width), height(height)
 {
     Matrix matrix = compute_screen_transformation_matrix();
+    // 透視投影の座標系をスクリーンの座標系に変換して格納
     for(auto&& local_coord : projection_coordinate_system.get_local_coords()) {
         local_coord.transform(matrix);
         local_coords.push_back(local_coord);
@@ -287,20 +291,10 @@ Matrix ScreenCoordinateSystem::compute_screen_transformation_matrix()
     matrix[1][3] = height / 2.0;
     return matrix;
 }
-
 void ScreenCoordinateSystem::draw(SDL_Renderer* renderer)
 {
+    /* 全てのLocalCoordinateSystemオブジェクトを描画する. */
     for(auto&& local_coord : local_coords) {
         local_coord.draw(renderer);
     }
 }
-#ifndef NDEBUG
-void CameraCoordinateSystem::draw_debug(SDL_Renderer* renderer)
-{
-    for(auto&& local_coord : local_coords) {
-        local_coord.draw(renderer);
-    }
-}
-#endif
-
-/* ScreenCoordinateSystemクラス */
