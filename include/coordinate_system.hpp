@@ -1,7 +1,7 @@
 #pragma once
-
 #include <coordinate.hpp>
 #include <matrix.hpp>
+#include <screen.hpp>
 #include <vector>
 
 using namespace std;
@@ -11,7 +11,7 @@ class Body
     /* CoordinateSystemで描画される物体 */
 public:
     virtual ~Body();
-    virtual void draw(SDL_Renderer* renderer);
+    virtual void draw(const Screen& screen) const;
     virtual void transform(const Matrix& matrix);
     virtual void transform_and_div(const Matrix& matrix);
     virtual bool should_draw(double near, double far);
@@ -31,7 +31,7 @@ public:
     ~Line();
     void transform(const Matrix& matrix);
     void transform_and_div(const Matrix& matrix);
-    void draw(SDL_Renderer* renderer);
+    void draw(const Screen& screen) const;
     bool should_draw(double near, double far);
     Line* clone();
 };
@@ -60,7 +60,7 @@ public:
     ~LocalCoordinateSystem();
     void add_body(Body* body);
     void transform(Matrix matrix);
-    void draw(SDL_Renderer* renderer);
+    void draw(const Screen& renderer);
     void transform_and_div(const Matrix& matrix);
     bool delete_undrawable_body(double near, double far);
     vector<Body*> get_bodys();
@@ -121,5 +121,5 @@ public:
     ScreenCoordinateSystem(
         ProjectionCoordinateSystem projection_coordinate_system, int width,
         int height);
-    void draw(SDL_Renderer* renderer);
+    void draw(const Screen& screen);
 };

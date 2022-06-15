@@ -1,12 +1,11 @@
+# SDL2の読み込み
+include(C:\\dev_lib\\SDL2-2.0.16-86-mingw\\lib\\cmake\\SDL2\\sdl2-config.cmake) # SDL2の修正したcmakeを読み込む. SDL2に関わる変数が読み込まれる.
+message(STATUS SDL2_INCLUDE_DIRS:${SDL2_INCLUDE_DIRS})
+message(STATUS SDL2_LIBRARIES:${SDL2_LIBRARIES})
+
+# sdl_3d
 add_library(sdl_3d INTERFACE)
-target_include_directories(sdl_3d INTERFACE
-    ${SDL2_INCLUDE_DIRS}
-)
-target_link_directories(sdl_3d INTERFACE
-    ${SDL2_LIBDIR}
-)
 target_link_libraries(sdl_3d INTERFACE
-    ${SDL2_LIBRARIES}
     matrix
     coordinate_system
     coordinate
@@ -31,19 +30,13 @@ target_include_directories(coordinate PUBLIC
 add_library(coordinate_system STATIC coordinate_system.cpp ../include/coordinate_system.hpp)
 target_include_directories(coordinate_system PUBLIC
     ../include/
-    ${SDL2_INCLUDE_DIRS}
-)
-target_link_directories(coordinate_system INTERFACE
-    ${SDL2_LIBDIR}
 )
 target_link_libraries(coordinate_system PUBLIC
-    ${SDL2_LIBRARIES}
     matrix
     coordinate
     screen
 )
 target_compile_features(coordinate_system INTERFACE cxx_std_11)
-include_directories(${SDL2_INCLUDE_DIR})
 
 # screen
 add_library(screen STATIC screen.cpp ../include/screen.hpp)

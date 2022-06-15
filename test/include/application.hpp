@@ -1,6 +1,5 @@
 #pragma once
-
-#include <SDL.h>
+#include <sdl_3d.hpp>
 
 class Application
 {

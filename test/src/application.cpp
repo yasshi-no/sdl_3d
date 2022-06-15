@@ -1,5 +1,3 @@
-#include <SDL.h>
-
 #include <application.hpp>
 #include <cmath>
 #include <iostream>
@@ -55,6 +53,8 @@ void Application::close()
 
 void Application::run()
 {
+    // スクリーンを管理するオブジェクト
+    Screen screen(screen_renderer);
     bool quit = false;  // メインループを終了するか否か
     SDL_Event event;
     // 視点の位置と角度の変化について
@@ -87,13 +87,18 @@ void Application::run()
 
     while(!quit) {
         // rendererを更新する
-        SDL_RenderClear(screen_renderer);
+        // SDL_RenderClear(screen_renderer);
+        screen.clear();
         // 背景の更新
-        SDL_SetRenderDrawColor(screen_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-        SDL_RenderFillRect(screen_renderer, NULL);
+        // SDL_SetRenderDrawColor(screen_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        // SDL_RenderFillRect(screen_renderer, NULL);
+        screen.set_draw_color(Color(0, 0, 0, SDL_ALPHA_OPAQUE));
+        screen.fill_rect();
         // ScreenCoordinateSystemの描画
-        SDL_SetRenderDrawColor(screen_renderer, 255, 255, 255,
-                               SDL_ALPHA_OPAQUE);
+        // SDL_SetRenderDrawColor(screen_renderer, 255, 255, 255,
+        //                        SDL_ALPHA_OPAQUE);
+        screen.set_draw_color(Color(255, 255, 255, SDL_ALPHA_OPAQUE));
+
         // 現在の視点の位置と方向を計算
         perspective = perspective + perspective_change;
         // 視点の方向の変化を初期化
@@ -108,10 +113,10 @@ void Application::run()
             camera_coords, screen_width, screen_height, 1, 1000, pi / 1.5);
         ScreenCoordinateSystem screen_coords(proj_coords, screen_width,
                                              screen_height);
-        screen_coords.draw(screen_renderer);
+        screen_coords.draw(screen);
 
         // 画面の更新
-        SDL_RenderPresent(screen_renderer);
+        screen.update();
 
         // イベントの処理
         while(SDL_PollEvent(&event) != 0) {

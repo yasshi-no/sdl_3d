@@ -1,5 +1,3 @@
-#include <SDL.h>
-
 #include <cmath>
 #include <coordinate.hpp>
 #include <coordinate_system.hpp>
@@ -7,7 +5,7 @@
 
 /* Bodyクラス */
 Body::~Body() {}
-void Body::draw(SDL_Renderer* renderer)
+void Body::draw(const Screen& screen) const
 {
     /* 物体を描画する. */
     return;
@@ -59,16 +57,18 @@ void Line::transform_and_div(const Matrix& matrix)
     transform(matrix);
     coord1.normalize();
     coord2.normalize();
-    SDL_Log("div1 %f %f %f %f   2   %f %f %f %f\n", coord1.get_x(),
-            coord1.get_y(), coord1.get_z(), coord1.get_w(), coord2.get_x(),
-            coord2.get_y(), coord2.get_z(), coord1.get_w());
+    // SDL_Log("div1 %f %f %f %f   2   %f %f %f %f\n", coord1.get_x(),
+    //         coord1.get_y(), coord1.get_z(), coord1.get_w(), coord2.get_x(),
+    //         coord2.get_y(), coord2.get_z(), coord1.get_w());
     return;
 }
-void Line::draw(SDL_Renderer* renderer)
+void Line::draw(const Screen& screen) const
 {
     /* 直線を描画する. */
-    SDL_RenderDrawLine(renderer, coord1.get_x(), coord1.get_y(), coord2.get_x(),
-                       coord2.get_y());
+    screen.draw_line(coord1.get_x(), coord1.get_y(), coord2.get_x(),
+                     coord2.get_y());
+    // SDL_RenderDrawLine(renderer, coord1.get_x(), coord1.get_y(),
+    //                    coord2.get_x(), coord2.get_y());
     return;
 }
 bool Line::should_draw(double near, double far)
@@ -167,11 +167,11 @@ void LocalCoordinateSystem::transform_and_div(const Matrix& matrix)
         body->transform_and_div(matrix);
     }
 }
-void LocalCoordinateSystem::draw(SDL_Renderer* renderer)
+void LocalCoordinateSystem::draw(const Screen& screen)
 {
     /* 全てのBodyオブジェクトを描画する */
     for(auto&& body : bodys) {
-        body->draw(renderer);
+        body->draw(screen);
     }
 }
 bool LocalCoordinateSystem::delete_undrawable_body(double near, double far)
@@ -287,10 +287,10 @@ Matrix ScreenCoordinateSystem::compute_screen_transformation_matrix()
     matrix[1][3] = height / 2.0;
     return matrix;
 }
-void ScreenCoordinateSystem::draw(SDL_Renderer* renderer)
+void ScreenCoordinateSystem::draw(const Screen& screen)
 {
     /* 全てのLocalCoordinateSystemオブジェクトを描画する. */
     for(auto&& local_coord : local_coords) {
-        local_coord.draw(renderer);
+        local_coord.draw(screen);
     }
 }

@@ -1,7 +1,5 @@
+#pragma once
 #include <SDL.h>
-
-#include <coordinate.hpp>
-#include <matrix.hpp>
 
 class Color
 {
@@ -24,6 +22,9 @@ private:
 
 public:
     Screen(SDL_Renderer* renderer);
-    void set_draw_color(Color color);
-    void draw_line(int x1, int y1, int x2, int y2);
+    void set_draw_color(Color color) const;
+    void fill_rect() const;
+    void draw_line(int x1, int y1, int x2, int y2) const;
+    void clear() const;
+    void update() const;
 };
