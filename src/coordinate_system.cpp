@@ -63,6 +63,7 @@ Perspective Perspective::operator+(const Perspective& perspective) const
 }
 
 /* Bodyクラス */
+Body::~Body() {}
 void Body::draw(SDL_Renderer* renderer)
 {
     /* 物体を描画する. */
@@ -94,6 +95,7 @@ Line::Line(Coordinate coord1, Coordinate coord2)
     : coord1(coord1), coord2(coord2)
 {
 }
+Line::~Line() {}
 void Line::transform(const Matrix& matrix)
 {
     /* 座標を行列変換する. */

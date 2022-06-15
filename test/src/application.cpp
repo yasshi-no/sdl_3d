@@ -108,9 +108,6 @@ void Application::run()
             camera_coords, screen_width, screen_height, 1, 1000, pi / 1.5);
         ScreenCoordinateSystem screen_coords(proj_coords, screen_width,
                                              screen_height);
-        // SDL_Log("coord:%f %f %f", coord.get_x(), coord.get_y(),
-        // coord.get_z()); 処理した変化量の初期化
-        // coord = Coordinate(0.0, 0.0, 0.0);
         screen_coords.draw(screen_renderer);
 
         // 画面の更新

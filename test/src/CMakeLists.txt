@@ -1,6 +1,6 @@
 # application
 add_library(application STATIC application.cpp ../include/application.hpp)
-target_include_directories(application PUBLIC 
+target_include_directories(application PUBLIC
     ../include/
 )
 target_link_directories(application PUBLIC
