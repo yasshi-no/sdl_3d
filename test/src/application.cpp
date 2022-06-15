@@ -126,7 +126,7 @@ void Application::run()
                             break;
                         case SDLK_a:
                             // 左へ
-                            perspective_change.coord.set_x(-change_length);
+                            perspective_change.coord.set_x(change_length);
                             break;
                         case SDLK_s:
                             // 後ろへ
@@ -134,15 +134,15 @@ void Application::run()
                             break;
                         case SDLK_d:
                             // 右へ
-                            perspective_change.coord.set_x(change_length);
+                            perspective_change.coord.set_x(-change_length);
                             break;
                         case SDLK_UP:
                             // 上へ
-                            perspective_change.coord.set_y(-change_length);
+                            perspective_change.coord.set_y(change_length);
                             break;
                         case SDLK_DOWN:
                             // 下へ
-                            perspective_change.coord.set_y(change_length);
+                            perspective_change.coord.set_y(-change_length);
                             break;
                         default:
                             break;
@@ -180,6 +180,7 @@ void Application::run()
                             break;
                     }
                     break;
+
                 // case SDL_MOUSEWHEEL:
                 //     // 拡大縮小
                 //     if(event.wheel.y > 0) {
@@ -200,7 +201,7 @@ void Application::run()
             }
         }
 
-        SDL_Delay(33);
+        SDL_Delay(1);
     }
     close();
 }
