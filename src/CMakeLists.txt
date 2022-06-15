@@ -10,6 +10,7 @@ target_link_libraries(sdl_3d INTERFACE
     coordinate_system
     coordinate
     screen
+    body
 )
 target_compile_features(sdl_3d INTERFACE cxx_std_11)
 
@@ -19,6 +20,18 @@ target_include_directories(matrix PUBLIC
     ../include/
 )
 target_compile_features(matrix PRIVATE cxx_std_11)
+
+# body
+add_library(body STATIC body.cpp ../include/body.hpp)
+target_include_directories(body PUBLIC
+    ../include/
+)
+target_link_libraries(body PUBLIC
+    matrix
+    coordinate
+    screen
+)
+target_compile_features(body INTERFACE cxx_std_11)
 
 # coordinate
 add_library(coordinate STATIC coordinate.cpp ../include/coordinate.hpp)
