@@ -86,10 +86,19 @@ void Application::run()
         perspective_change.zx_angle = 0.0;
         perspective_change.yz_angle = 0.0;
         // 直線のある世界を生成
-        Line line(Coordinate(0, 0, 500), Coordinate(0, 320, 500));
-        // 画面描画までの各種変換
+        double square_length = 100.0;
         LocalCoordinateSystem local_coords;
-        local_coords.add_body(&line);
+        local_coords.add_body(new Line(Coordinate(0.0, 0.0, 0.0),
+                                       Coordinate(square_length, 0.0, 0.0)));
+        local_coords.add_body(
+            new Line(Coordinate(square_length, 0.0, 0.0),
+                     Coordinate(square_length, square_length, 0.0)));
+        local_coords.add_body(
+            new Line(Coordinate(square_length, square_length, 0.0),
+                     Coordinate(0.0, square_length, 0.0)));
+        local_coords.add_body(new Line(Coordinate(0.0, square_length, 0.0),
+                                       Coordinate(0.0, 0.0, 0.0)));
+        // 画面描画までの各種変換
         WorldCoordinateSystem world_coords;
         world_coords.add_bodys(local_coords,
                                Perspective(Coordinate(0, 0, 0), 0, 0));
