@@ -60,6 +60,7 @@ void Application::run()
     // 視点の位置と角度の変化について
     Perspective perspective(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
     double change_length = 20.0;
+    double change_angle = 0.01;
 
     double pi = 3.14;
 
@@ -81,9 +82,13 @@ void Application::run()
                                SDL_ALPHA_OPAQUE);
         // 現在の視点の位置と方向を計算
         perspective = perspective + perspective_change;
+        // 視点の方向の変化を初期化
+        perspective_change.xy_angle = 0.0;
+        perspective_change.yz_angle = 0.0;
         // 直線のある世界を生成
+        Line line(Coordinate(0, 0, 500), Coordinate(0, 320, 500));
+        // 画面描画までの各種変換
         LocalCoordinateSystem local_coords;
-        Line line(Coordinate(320, 0, 500), Coordinate(320, 320, 500));
         local_coords.add_body(&line);
         WorldCoordinateSystem world_coords;
         world_coords.add_bodys(local_coords,
@@ -176,7 +181,8 @@ void Application::run()
                             break;
                     }
                     break;
-
+                case SDL_MOUSEMOTION:
+                    perspective_change.xy_angle = event.motion.xrel * 0.01;
                 // case SDL_MOUSEWHEEL:
                 //     // 拡大縮小
                 //     if(event.wheel.y > 0) {
