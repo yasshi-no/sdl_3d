@@ -48,8 +48,8 @@ void Coordinate::set_z(double val) { v[2][0] = val; }
 void Coordinate::set_w(double val) { v[3][0] = val; }
 
 /* Perspectiveクラス */
-Perspective::Perspective(Coordinate coord, double xy_angle, double yz_angle)
-    : coord(coord), xy_angle(xy_angle), yz_angle(yz_angle)
+Perspective::Perspective(Coordinate coord, double zx_angle, double yz_angle)
+    : coord(coord), zx_angle(zx_angle), yz_angle(yz_angle)
 {
     /* coordにより視点の位置を決定する. その後に視点の方向をfoo_angleで決定する.
         決定の順番に注意.
@@ -57,7 +57,7 @@ Perspective::Perspective(Coordinate coord, double xy_angle, double yz_angle)
 }
 Perspective Perspective::operator+(const Perspective& perspective) const
 {
-    Perspective ret(coord + perspective.coord, xy_angle + perspective.xy_angle,
+    Perspective ret(coord + perspective.coord, zx_angle + perspective.zx_angle,
                     yz_angle + perspective.yz_angle);
     return ret;
 }
@@ -135,7 +135,7 @@ Matrix CoordinateSystem::compute_affine_transformation_matrix(
 {
     /* アフィン変換行列を計算する. なお, 平行移動してから回転する. */
     Matrix ret = compute_yzrotation_matrix(perspective.yz_angle) *
-                 compute_xyrotation_matrix(perspective.xy_angle) *
+                 compute_zxrotation_matrix(perspective.zx_angle) *
                  compute_translation_matrix(perspective.coord);
     return ret;
 }
@@ -169,6 +169,17 @@ Matrix CoordinateSystem::compute_yzrotation_matrix(double yz_angle)
     ret[2][1] = sin(yz_angle);
     ret[1][2] = -sin(yz_angle);
     ret[2][2] = cos(yz_angle);
+    return ret;
+}
+Matrix CoordinateSystem::compute_zxrotation_matrix(double zx_angle)
+{
+    /* y軸回りの回転のための行列を計算する. */
+    Matrix ret(4, 4);
+    ret.identity();
+    ret[0][0] = cos(zx_angle);
+    ret[2][0] = sin(zx_angle);
+    ret[0][2] = -sin(zx_angle);
+    ret[2][2] = cos(zx_angle);
     return ret;
 }
 

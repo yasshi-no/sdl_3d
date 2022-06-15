@@ -32,9 +32,9 @@ class Perspective
     /* 視点の座標と方向 */
 public:
     Coordinate coord;
-    double xy_angle;
+    double zx_angle;
     double yz_angle;
-    Perspective(Coordinate coord, double xy_angle, double yz_angle);
+    Perspective(Coordinate coord, double zx_angle, double yz_angle);
     Perspective operator+(const Perspective& perspective) const;
 };
 
@@ -73,6 +73,7 @@ public:
     static Matrix compute_translation_matrix(Coordinate coord);
     static Matrix compute_xyrotation_matrix(double xy_angle);
     static Matrix compute_yzrotation_matrix(double yz_angle);
+    static Matrix compute_zxrotation_matrix(double zx_angle);
 };
 
 class LocalCoordinateSystem

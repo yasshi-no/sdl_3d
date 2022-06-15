@@ -83,7 +83,7 @@ void Application::run()
         // 現在の視点の位置と方向を計算
         perspective = perspective + perspective_change;
         // 視点の方向の変化を初期化
-        perspective_change.xy_angle = 0.0;
+        perspective_change.zx_angle = 0.0;
         perspective_change.yz_angle = 0.0;
         // 直線のある世界を生成
         Line line(Coordinate(0, 0, 500), Coordinate(0, 320, 500));
@@ -182,22 +182,9 @@ void Application::run()
                     }
                     break;
                 case SDL_MOUSEMOTION:
-                    perspective_change.xy_angle = event.motion.xrel * 0.01;
-                // case SDL_MOUSEWHEEL:
-                //     // 拡大縮小
-                //     if(event.wheel.y > 0) {
-                //         canvas.modify_scale(1 / scale_change_rate);
-                //     } else if(event.wheel.y < 0) {
-                //         canvas.modify_scale(scale_change_rate);
-                //     }
-                // case SDL_MOUSEBUTTONDOWN:
-                //     // 移動の開始位置を記録
-                //     SDL_GetMouseState(&mouse_bfr_x, &mouse_bfr_y);
-                //     break;
-                // case SDL_MOUSEBUTTONUP:
-                //     mouse_bfr_x = -1;
-                //     mouse_bfr_y = -1;
-                //     break;
+                    // 回転の操作
+                    perspective_change.zx_angle = event.motion.xrel * 0.01;
+                    perspective_change.yz_angle = event.motion.yrel * 0.01;
                 default:
                     break;
             }
