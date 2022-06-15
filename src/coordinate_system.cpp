@@ -125,7 +125,8 @@ bool Line::should_draw(double near, double far)
     /* z成分は描画範囲に入っているか. */
     double z1 = coord1.get_z();
     double z2 = coord2.get_z();
-    return near <= z1 && z1 <= far && near <= z2 && z2 <= far;
+    bool ret = near <= z1 && z1 <= far && near <= z2 && z2 <= far;
+    return ret;
 }
 
 /* CoordinateSystemクラス */
@@ -207,7 +208,7 @@ bool LocalCoordinateSystem::delete_undrawable_body(double near, double far)
             new_bodys.push_back(body);
         }
     }
-
+    bodys = new_bodys;
     return ret;
 }
 vector<Body*> LocalCoordinateSystem::get_bodys() { return bodys; }

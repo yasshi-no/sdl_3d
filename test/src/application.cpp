@@ -59,10 +59,7 @@ void Application::run()
     SDL_Event event;
     // 視点の位置と角度の変化について
     Perspective perspective(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
-    Coordinate coord(0.0, 0.0, 0.0);
-    double xy_angle = 0.0;
-    double yz_angle = 0.0;
-    double change_length = 5.0;
+    double change_length = 20.0;
 
     double pi = 3.14;
 
@@ -92,7 +89,6 @@ void Application::run()
         world_coords.add_bodys(local_coords,
                                Perspective(Coordinate(0, 0, 0), 0, 0));
         CameraCoordinateSystem camera_coords(world_coords, perspective);
-        // yz_angle += 0.01;
         ProjectionCoordinateSystem proj_coords(
             camera_coords, screen_width, screen_height, 10, 1000, pi / 1.5);
         ScreenCoordinateSystem screen_coords(proj_coords, screen_width,
@@ -201,7 +197,7 @@ void Application::run()
             }
         }
 
-        SDL_Delay(1);
+        SDL_Delay(33);
     }
     close();
 }
