@@ -70,6 +70,20 @@ void Application::run()
     // for(int i = 0; i < 3; i++) {
     //     SDL_Log("%f %f %f\n", mat[i][0], mat[i][1], mat[i][2]);
     // }
+    // 直線のある世界を生成
+    double square_length = 100.0;
+    double square_z = 100.0;
+    LocalCoordinateSystem local_coords;
+    local_coords.add_body(new Line(Coordinate(0.0, 0.0, square_z),
+                                   Coordinate(square_length, 0.0, square_z)));
+    local_coords.add_body(
+        new Line(Coordinate(square_length, 0.0, square_z),
+                 Coordinate(square_length, square_length, square_z)));
+    local_coords.add_body(
+        new Line(Coordinate(square_length, square_length, square_z),
+                 Coordinate(0.0, square_length, square_z)));
+    local_coords.add_body(new Line(Coordinate(0.0, square_length, square_z),
+                                   Coordinate(0.0, 0.0, square_z)));
 
     while(!quit) {
         // rendererを更新する
@@ -85,26 +99,13 @@ void Application::run()
         // 視点の方向の変化を初期化
         perspective_change.zx_angle = 0.0;
         perspective_change.yz_angle = 0.0;
-        // 直線のある世界を生成
-        double square_length = 100.0;
-        LocalCoordinateSystem local_coords;
-        local_coords.add_body(new Line(Coordinate(0.0, 0.0, 0.0),
-                                       Coordinate(square_length, 0.0, 0.0)));
-        local_coords.add_body(
-            new Line(Coordinate(square_length, 0.0, 0.0),
-                     Coordinate(square_length, square_length, 0.0)));
-        local_coords.add_body(
-            new Line(Coordinate(square_length, square_length, 0.0),
-                     Coordinate(0.0, square_length, 0.0)));
-        local_coords.add_body(new Line(Coordinate(0.0, square_length, 0.0),
-                                       Coordinate(0.0, 0.0, 0.0)));
         // 画面描画までの各種変換
         WorldCoordinateSystem world_coords;
         world_coords.add_bodys(local_coords,
                                Perspective(Coordinate(0, 0, 0), 0, 0));
         CameraCoordinateSystem camera_coords(world_coords, perspective);
         ProjectionCoordinateSystem proj_coords(
-            camera_coords, screen_width, screen_height, 10, 1000, pi / 1.5);
+            camera_coords, screen_width, screen_height, 1, 1000, pi / 1.5);
         ScreenCoordinateSystem screen_coords(proj_coords, screen_width,
                                              screen_height);
         // SDL_Log("coord:%f %f %f", coord.get_x(), coord.get_y(),

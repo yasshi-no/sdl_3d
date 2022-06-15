@@ -83,6 +83,12 @@ bool Body::should_draw(double near, double far)
     /* z成分は描画範囲に入っているか. */
     return false;
 }
+Body* Body::clone()
+{
+    /* 複製した実体のポインタを返す. */
+    return 0;
+}
+
 /* Lineクラス */
 Line::Line(Coordinate coord1, Coordinate coord2)
     : coord1(coord1), coord2(coord2)
@@ -128,6 +134,7 @@ bool Line::should_draw(double near, double far)
     bool ret = near <= z1 && z1 <= far && near <= z2 && z2 <= far;
     return ret;
 }
+Line* Line::clone() { return new Line(*this); }
 
 /* CoordinateSystemクラス */
 Matrix CoordinateSystem::compute_affine_transformation_matrix(
@@ -184,6 +191,22 @@ Matrix CoordinateSystem::compute_zxrotation_matrix(double zx_angle)
 }
 
 /* LocalCoordinateSystemクラス */
+LocalCoordinateSystem::LocalCoordinateSystem() {}
+LocalCoordinateSystem::LocalCoordinateSystem(
+    const LocalCoordinateSystem& local_coordinate_system)
+{
+    // 新しいBodyオブジェクトの実体を確保してコピー
+    for(auto&& body : local_coordinate_system.bodys) {
+        bodys.push_back(body->clone());
+    }
+}
+LocalCoordinateSystem::~LocalCoordinateSystem()
+{
+    // 全てのBodyオブジェクトを解放
+    for(auto&& body : bodys) {
+        delete body;
+    }
+}
 void LocalCoordinateSystem::add_body(Body* body) { bodys.push_back(body); }
 void LocalCoordinateSystem::transform(Matrix matrix)
 {
@@ -208,7 +231,7 @@ void LocalCoordinateSystem::draw(SDL_Renderer* renderer)
 }
 bool LocalCoordinateSystem::delete_undrawable_body(double near, double far)
 {
-    /* z成分は描画範囲に入っていないBodyオブジェクトを削除する.
+    /* z成分は描画範囲に入っていないBodyオブジェクトを解放する.
      * 返り値は描画するオブジェクトが存在するか*/
     vector<Body*> new_bodys;
     bool ret = false;
@@ -217,12 +240,15 @@ bool LocalCoordinateSystem::delete_undrawable_body(double near, double far)
             // bodyが描画可能なz成分の場合
             ret = true;
             new_bodys.push_back(body);
+        } else {
+            delete body;
         }
     }
     bodys = new_bodys;
     return ret;
 }
 vector<Body*> LocalCoordinateSystem::get_bodys() { return bodys; }
+
 /* WorldCoordinateSystemクラス */
 WorldCoordinateSystem::WorldCoordinateSystem() {}
 void WorldCoordinateSystem::add_bodys(

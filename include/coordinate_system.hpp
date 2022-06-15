@@ -46,6 +46,7 @@ public:
     virtual void transform(const Matrix& matrix);
     virtual void transform_and_div(const Matrix& matrix);
     virtual bool should_draw(double near, double far);
+    virtual Body* clone();
 };
 
 class Line : public Body
@@ -62,6 +63,7 @@ public:
     void transform_and_div(const Matrix& matrix);
     void draw(SDL_Renderer* renderer);
     bool should_draw(double near, double far);
+    Line* clone();
 };
 
 class CoordinateSystem
@@ -82,6 +84,10 @@ class LocalCoordinateSystem
 private:
     vector<Body*> bodys;  // 描画する物体の配列
 public:
+    LocalCoordinateSystem();
+    LocalCoordinateSystem(
+        const LocalCoordinateSystem& loocal_coordinate_system);
+    ~LocalCoordinateSystem();
     void add_body(Body* body);
     void transform(Matrix matrix);
     void draw(SDL_Renderer* renderer);
