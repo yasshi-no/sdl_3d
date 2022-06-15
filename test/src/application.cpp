@@ -91,8 +91,7 @@ void Application::run()
         WorldCoordinateSystem world_coords;
         world_coords.add_bodys(local_coords,
                                Perspective(Coordinate(0, 0, 0), 0, 0));
-        CameraCoordinateSystem camera_coords(
-            world_coords, Perspective(coord, xy_angle, yz_angle));
+        CameraCoordinateSystem camera_coords(world_coords, perspective);
         // yz_angle += 0.01;
         ProjectionCoordinateSystem proj_coords(
             camera_coords, screen_width, screen_height, 10, 1000, pi / 1.5);
@@ -123,29 +122,60 @@ void Application::run()
                         // 視点の移動
                         case SDLK_w:
                             // 前へ
-                            coord.set_z(coord.get_z() - change_length);
+                            perspective_change.coord.set_z(-change_length);
                             break;
                         case SDLK_a:
                             // 左へ
-                            coord.set_x(coord.get_x() - change_length);
+                            perspective_change.coord.set_x(-change_length);
                             break;
                         case SDLK_s:
                             // 後ろへ
-                            coord.set_z(coord.get_z() + change_length);
+                            perspective_change.coord.set_z(change_length);
                             break;
                         case SDLK_d:
                             // 右へ
-                            coord.set_x(coord.get_x() + change_length);
+                            perspective_change.coord.set_x(change_length);
                             break;
                         case SDLK_UP:
                             // 上へ
-                            coord.set_y(coord.get_y() - change_length);
+                            perspective_change.coord.set_y(-change_length);
                             break;
                         case SDLK_DOWN:
                             // 下へ
-                            coord.set_y(coord.get_y() + change_length);
+                            perspective_change.coord.set_y(change_length);
                             break;
-
+                        default:
+                            break;
+                    }
+                    break;
+                case SDL_KEYUP:
+                    // キーボードが押し上げられたとき
+                    switch(event.key.keysym.sym) {
+                        // 視点の移動
+                        case SDLK_w:
+                            // 前への移動を無効にする
+                            perspective_change.coord.set_z(0.0);
+                            break;
+                        case SDLK_a:
+                            // 左への移動を無効にする
+                            perspective_change.coord.set_x(0.0);
+                            break;
+                        case SDLK_s:
+                            // 後ろへの移動を無効にする
+                            perspective_change.coord.set_z(0.0);
+                            break;
+                        case SDLK_d:
+                            // 右への移動を無効にする
+                            perspective_change.coord.set_x(0.0);
+                            break;
+                        case SDLK_UP:
+                            // 上への移動を無効にする
+                            perspective_change.coord.set_y(0.0);
+                            break;
+                        case SDLK_DOWN:
+                            // 下への移動を無効にする
+                            perspective_change.coord.set_y(0.0);
+                            break;
                         default:
                             break;
                     }
