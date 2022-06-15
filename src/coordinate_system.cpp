@@ -22,6 +22,13 @@ Coordinate& Coordinate::operator=(Matrix matrix)
     set_w(matrix[3][0]);
     return *this;
 }
+Coordinate Coordinate::operator+(const Coordinate& coord) const
+{
+    /* x,y,z成分を加算する. */
+    Coordinate ret(get_x() + coord.get_x(), get_y() + coord.get_y(),
+                   get_z() + coord.get_z());
+    return ret;
+}
 void Coordinate::normalize()
 {
     /* 全成分をw成分で割る. */
@@ -47,6 +54,12 @@ Perspective::Perspective(Coordinate coord, double xy_angle, double yz_angle)
     /* coordにより視点の位置を決定する. その後に視点の方向をfoo_angleで決定する.
         決定の順番に注意.
      */
+}
+Perspective Perspective::operator+(const Perspective& perspective) const
+{
+    Perspective ret(coord + perspective.coord, xy_angle + perspective.xy_angle,
+                    yz_angle + perspective.yz_angle);
+    return ret;
 }
 
 /* Bodyクラス */

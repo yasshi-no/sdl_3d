@@ -58,12 +58,16 @@ void Application::run()
     bool quit = false;  // メインループを終了するか否か
     SDL_Event event;
     // 視点の位置と角度の変化について
+    Perspective perspective(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
     Coordinate coord(0.0, 0.0, 0.0);
     double xy_angle = 0.0;
     double yz_angle = 0.0;
     double change_length = 5.0;
 
     double pi = 3.14;
+
+    // Perspectiveの変化量
+    Perspective perspective_change(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
 
     // for(int i = 0; i < 3; i++) {
     //     SDL_Log("%f %f %f\n", mat[i][0], mat[i][1], mat[i][2]);
@@ -78,6 +82,8 @@ void Application::run()
         // ScreenCoordinateSystemの描画
         SDL_SetRenderDrawColor(screen_renderer, 255, 255, 255,
                                SDL_ALPHA_OPAQUE);
+        // 現在の視点の位置と方向を計算
+        perspective = perspective + perspective_change;
         // 直線のある世界を生成
         LocalCoordinateSystem local_coords;
         Line line(Coordinate(320, 0, 500), Coordinate(320, 320, 500));

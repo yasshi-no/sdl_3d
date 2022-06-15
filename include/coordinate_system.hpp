@@ -16,6 +16,7 @@ private:
 public:
     Coordinate(double x, double y, double z);
     Coordinate& operator=(Matrix matrix);
+    Coordinate operator+(const Coordinate& coord) const;
     void normalize();
     double get_x() const;
     double get_y() const;
@@ -30,10 +31,11 @@ class Perspective
 {
     /* 視点の座標と方向 */
 public:
-    Perspective(Coordinate coord, double xy_angle, double yz_angle);
     Coordinate coord;
     double xy_angle;
     double yz_angle;
+    Perspective(Coordinate coord, double xy_angle, double yz_angle);
+    Perspective operator+(const Perspective& perspective) const;
 };
 
 class Body
