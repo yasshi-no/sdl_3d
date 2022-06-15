@@ -9,6 +9,8 @@ target_link_libraries(sdl_3d INTERFACE
     ${SDL2_LIBRARIES}
     matrix
     coordinate_system
+    coordinate
+    screen
 )
 target_compile_features(sdl_3d INTERFACE cxx_std_11)
 
@@ -38,6 +40,24 @@ target_link_libraries(coordinate_system PUBLIC
     ${SDL2_LIBRARIES}
     matrix
     coordinate
+    screen
 )
 target_compile_features(coordinate_system INTERFACE cxx_std_11)
+include_directories(${SDL2_INCLUDE_DIR})
+
+# screen
+add_library(screen STATIC screen.cpp ../include/screen.hpp)
+target_include_directories(screen PUBLIC
+    ../include/
+    ${SDL2_INCLUDE_DIRS}
+)
+target_link_directories(screen INTERFACE
+    ${SDL2_LIBDIR}
+)
+target_link_libraries(screen PUBLIC
+    ${SDL2_LIBRARIES}
+    matrix
+    coordinate
+)
+target_compile_features(screen INTERFACE cxx_std_11)
 include_directories(${SDL2_INCLUDE_DIR})
