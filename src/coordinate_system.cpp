@@ -12,6 +12,7 @@ Matrix CoordinateSystem::compute_affine_transformation_matrix(Perspective perspe
                  compute_translation_matrix(perspective.coord);
     return ret;
 }
+
 Matrix CoordinateSystem::compute_translation_matrix(Coordinate coord) {
     /* 平行移動するための行列を計算する. */
     Matrix ret(4, 4);
@@ -60,6 +61,10 @@ Matrix CoordinateSystem::compute_zxrotation_matrix(double zx_angle) {
     ret[2][0] = -sin(zx_angle);
     ret[0][0] = cos(zx_angle);
     return ret;
+}
+Matrix CoordinateSystem::compute_zxzy_rotaion_matrix(double zx_angle, double zy_angle) {
+    /* z軸の正の向きから成す角より, 回転行列を計算する. */
+    return compute_zxrotation_matrix(zx_angle) * compute_zyrotation_matrix(zy_angle);
 }
 Matrix CoordinateSystem::compute_rodrigues_rotatin_matrix(Coordinate coord, double angle) {
     /* 任意軸の回転のための行列. coordは回転軸. angleは右ねじの向き. */
@@ -123,9 +128,11 @@ vector<Body *> LocalCoordinateSystem::get_bodys() { return bodys; }
 /* WorldCoordinateSystemクラス */
 WorldCoordinateSystem::WorldCoordinateSystem() {}
 void WorldCoordinateSystem::add_bodys(LocalCoordinateSystem local_coordinate_system, Perspective perspective) {
-    /* LocalCoordinateSystemオブジェクトのBodyを移動させて配置 */
+    /* LocalCoordinateSystemオブジェクトのBodyを移動させて配置(回転が始めに行われる.) */
     // 与えられたオブジェクトをアフィン変換行列で移動して追加
-    local_coordinate_system.transform(CoordinateSystem::compute_affine_transformation_matrix(perspective));
+    Matrix matrix = CoordinateSystem::compute_translation_matrix(perspective.coord) *
+                    CoordinateSystem::compute_zxzy_rotaion_matrix(perspective.zx_angle, perspective.zy_angle);
+    local_coordinate_system.transform(matrix);
     local_coords.push_back(local_coordinate_system);
 }
 vector<LocalCoordinateSystem> WorldCoordinateSystem::get_local_coords() { return local_coords; }

@@ -15,6 +15,7 @@ public:
     static Matrix compute_yzrotation_matrix(double yz_angle);
     static Matrix compute_zyrotation_matrix(double zy_angle);
     static Matrix compute_zxrotation_matrix(double zx_angle);
+    static Matrix compute_zxzy_rotaion_matrix(double zx_angle, double zy_angle);
     static Matrix compute_rodrigues_rotatin_matrix(Coordinate coord, double angle);
 };
 

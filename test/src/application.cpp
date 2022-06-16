@@ -6,7 +6,8 @@
 
 using namespace std;
 
-Application::Application(int screen_width, int screen_height) : screen_width(screen_width), screen_height(screen_height) { init(); }
+Application::Application(int screen_width, int screen_height)
+    : screen_width(screen_width), screen_height(screen_height) { init(); }
 
 bool Application::init() {
     /* SDLを初期化する
@@ -25,7 +26,10 @@ bool Application::init() {
         return false;
     }
 
+    // windowのタイトルの設定
     SDL_SetWindowTitle(window, "sdl 3d");
+    // カーソルの移動・表示を無効にする
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 
     return true;
 }
@@ -48,9 +52,13 @@ Perspective Application::compute_new_perspective(Perspective perspective, Perspe
     /* 新しい視点の位置を計算する. */
     Matrix zx_rotation_matrix = CoordinateSystem::compute_zxrotation_matrix(perspective.zx_angle); // y軸回転の行列
     Coordinate rotaioned_x = zx_rotation_matrix * Coordinate(1.0, 0.0, 0.0);                       // y軸回転で移動したx軸
-    Matrix rodrigues_matrix = CoordinateSystem::compute_rodrigues_rotatin_matrix(rotaioned_x,
-                                                                                 -perspective.zy_angle); // y軸回転で移動したx軸を軸とした回転行列
-    Perspective rotationed_perspective_change(Coordinate(rodrigues_matrix * zx_rotation_matrix * perspective_change.coord), perspective_change.zx_angle, perspective_change.zy_angle);
+    Matrix rodrigues_matrix =
+        CoordinateSystem::compute_rodrigues_rotatin_matrix(rotaioned_x, -perspective.zy_angle); // y軸回転で移動したx軸を軸とした回転行列
+    // 回転した移動方向のベクトル, 角度の変化から新しい視点を計算する
+    Perspective rotationed_perspective_change(
+        Coordinate(rodrigues_matrix * zx_rotation_matrix * perspective_change.coord),
+        perspective_change.zx_angle,
+        perspective_change.zy_angle);
     // 変化の更新
     Perspective ret = perspective + rotationed_perspective_change;
     return ret;
@@ -72,22 +80,6 @@ void Application::run() {
     Perspective perspective_change(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
 
     // 直線のある世界を生成
-    double square_length = 100.0;
-    double square_z = 100.0;
-    // LocalCoordinateSystem local_coords;
-    // local_coords.add_body(new Line(Coordinate(0.0, 0.0, square_z),
-    //                                Coordinate(square_length, 0.0,
-    //                                square_z)));
-    // local_coords.add_body(
-    //     new Line(Coordinate(square_length, 0.0, square_z),
-    //              Coordinate(square_length, square_length, square_z)));
-    // local_coords.add_body(new Line(Coordinate(square_length, 0.0, square_z),
-    //                                Coordinate(square_length, 0.0, 0.0)));
-    // local_coords.add_body(
-    //     new Line(Coordinate(square_length, square_length, square_z),
-    //              Coordinate(0.0, square_length, square_z)));
-    // local_coords.add_body(new Line(Coordinate(0.0, square_length, square_z),
-    //                                Coordinate(0.0, 0.0, square_z)));
     LocalCoordinateSystem rectangular = create_rectangular(100, 200, 300);
     LocalCoordinateSystem cube = create_cube(150);
 
@@ -105,17 +97,6 @@ void Application::run() {
 
         // 回転した変化量を格納より, 新しい視点の位置と方向を計算する.
         perspective = compute_new_perspective(perspective, perspective_change);
-        // Perspective test(Coordinate(rodrigues_matrix * zx_rotation_matrix *
-        //                             Coordinate(0.0, 0.0, 1.0)),
-        //                  0.0, 0.0);
-        // SDL_Log("%3.3f %.3f %.3f, %.3f %.3f", test.coord.get_x(),
-        //         test.coord.get_y(), test.coord.get_z(), perspective.zx_angle,
-        //         perspective.zy_angle);
-        // perspective = compute_new_perspective(perspective,
-        // perspective_change); SDL_Log("now   %f %f %f, %f %f",
-        // perspective.coord.get_x(),
-        //         perspective.coord.get_y(), perspective.coord.get_z(),
-        //         perspective.zx_angle, perspective.zy_angle);
         // SDL_Log("change   %f %f %f, %f %f, %f %f",
         //         rotationed_perspective_change.coord.get_x(),
         //         rotationed_perspective_change.coord.get_y(),
@@ -123,21 +104,27 @@ void Application::run() {
         //         rotationed_perspective_change.zx_angle,
         //         rotationed_perspective_change.yz_angle, perspective.zx_angle,
         //         perspective.yz_angle);
+
         // 視点の方向の変化を初期化
         perspective_change.zx_angle = 0.0;
         perspective_change.zy_angle = 0.0;
         // 画面描画までの各種変換
+        // WorldCoordinateSystemにLocalCoodinateSystemを追加する
         WorldCoordinateSystem world_coords;
         world_coords.add_bodys(rectangular, Perspective(Coordinate(0, 0, 0), 0, 0));
         world_coords.add_bodys(cube, Perspective(Coordinate(100, 200, 300), 0.5, 0));
+
+        // WorldCoordinateSystemをCameraCoodinateSystemに変換する
         CameraCoordinateSystem camera_coords(world_coords, -perspective);
+
+        // CameraCoodinateSystemをProjectionCoordinateSystemに変換する
         ProjectionCoordinateSystem proj_coords(camera_coords, screen_width, screen_height, 1, 10000, pi / 3.0);
+
         // ScreenCoordinateSystemの描画
         screen.set_draw_color(Color(255, 255, 255, SDL_ALPHA_OPAQUE));
         ScreenCoordinateSystem screen_coords(proj_coords, screen_width, screen_height);
         screen_coords.draw(screen);
 
-        SDL_SetRelativeMouseMode(SDL_TRUE);
         // 画面の更新
         screen.update();
 
