@@ -11,8 +11,7 @@ using namespace std;
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 640;
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
 #ifndef NDEBUG
     SDL_Log("debug\n");
 #endif

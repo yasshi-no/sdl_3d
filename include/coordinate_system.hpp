@@ -5,8 +5,7 @@
 #include <screen.hpp>
 #include <vector>
 
-class CoordinateSystem
-{
+class CoordinateSystem {
     /* 物体が配置される座標系, 描画までの各変換で得られる座標系の親クラス */
 protected:
 public:
@@ -16,71 +15,58 @@ public:
     static Matrix compute_yzrotation_matrix(double yz_angle);
     static Matrix compute_zyrotation_matrix(double zy_angle);
     static Matrix compute_zxrotation_matrix(double zx_angle);
-    static Matrix compute_rodrigues_rotatin_matrix(Coordinate coord,
-                                                   double angle);
+    static Matrix compute_rodrigues_rotatin_matrix(Coordinate coord, double angle);
 };
 
-class LocalCoordinateSystem
-{
+class LocalCoordinateSystem {
     /* Bodyオブジェクトを配置したもの */
 private:
-    vector<Body*> bodys;  // 描画する物体の配列
+    vector<Body *> bodys; // 描画する物体の配列
 public:
     LocalCoordinateSystem();
-    LocalCoordinateSystem(
-        const LocalCoordinateSystem& loocal_coordinate_system);
+    LocalCoordinateSystem(const LocalCoordinateSystem &loocal_coordinate_system);
     ~LocalCoordinateSystem();
-    void add_body(Body* body);
+    void add_body(Body *body);
     void transform(Matrix matrix);
-    void draw(const Screen& renderer);
-    void transform_and_div(const Matrix& matrix);
+    void draw(const Screen &renderer);
+    void transform_and_div(const Matrix &matrix);
     bool delete_undrawable_body(double near, double far);
-    vector<Body*> get_bodys();
+    vector<Body *> get_bodys();
 };
 
-class WorldCoordinateSystem
-{
+class WorldCoordinateSystem {
     /* LocalCoordinateSystemを配置したもの */
 private:
-    vector<LocalCoordinateSystem>
-        local_coords;  // 変換したLocalCoordinateSystem
+    vector<LocalCoordinateSystem> local_coords; // 変換したLocalCoordinateSystem
 
 public:
     WorldCoordinateSystem();
-    void add_bodys(LocalCoordinateSystem local_coordinate_system,
-                   Perspective perspective);
+    void add_bodys(LocalCoordinateSystem local_coordinate_system, Perspective perspective);
     vector<LocalCoordinateSystem> get_local_coords();
 };
 
-class CameraCoordinateSystem
-{
+class CameraCoordinateSystem {
     /* WorldCoordinateSystemを変換したもの */
 private:
     vector<LocalCoordinateSystem> local_coords;
 
 public:
-    CameraCoordinateSystem(WorldCoordinateSystem world_Coordinate_system,
-                           Perspective perspective);
+    CameraCoordinateSystem(WorldCoordinateSystem world_Coordinate_system, Perspective perspective);
     vector<LocalCoordinateSystem> get_local_coords();
 };
 
-class ProjectionCoordinateSystem
-{
+class ProjectionCoordinateSystem {
     /* CameraCoordinateSystemを変換したもの */
 private:
     vector<LocalCoordinateSystem> local_coords;
-    Matrix compute_projection_matrix(int width, int height, double near,
-                                     double far, double view_angle);
+    Matrix compute_projection_matrix(int width, int height, double near, double far, double view_angle);
 
 public:
-    ProjectionCoordinateSystem(CameraCoordinateSystem camera_Coordinate_system,
-                               int width, int height, double near, double far,
-                               double view_angle);
+    ProjectionCoordinateSystem(CameraCoordinateSystem camera_Coordinate_system, int width, int height, double near, double far, double view_angle);
     vector<LocalCoordinateSystem> get_local_coords();
 };
 
-class ScreenCoordinateSystem
-{
+class ScreenCoordinateSystem {
     /* ProjectionCoordinateSystemを変換したもの */
 private:
     // スクリーンのサイズ
@@ -90,8 +76,6 @@ private:
     Matrix compute_screen_transformation_matrix();
 
 public:
-    ScreenCoordinateSystem(
-        ProjectionCoordinateSystem projection_coordinate_system, int width,
-        int height);
-    void draw(const Screen& screen);
+    ScreenCoordinateSystem(ProjectionCoordinateSystem projection_coordinate_system, int width, int height);
+    void draw(const Screen &screen);
 };

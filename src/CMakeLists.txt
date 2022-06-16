@@ -18,7 +18,7 @@ target_link_libraries(sdl_3d INTERFACE
 )
 target_compile_features(sdl_3d INTERFACE cxx_std_11)
 
-# Matrix
+# matrix
 add_library(matrix STATIC matrix.cpp ../include/matrix.hpp)
 target_include_directories(matrix PUBLIC
     ../include/
@@ -62,6 +62,7 @@ target_include_directories(local_coordinate_assets PUBLIC
 )
 target_link_libraries(local_coordinate_assets PUBLIC
     body
+    coordinate
     coordinate_system
 )
 target_compile_features(coordinate_system INTERFACE cxx_std_11)
