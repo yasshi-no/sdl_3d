@@ -9,7 +9,7 @@ Matrix CoordinateSystem::compute_affine_transformation_matrix(
     Perspective perspective)
 {
     /* アフィン変換行列を計算する. なお, 平行移動してから回転する. */
-    Matrix ret = compute_yzrotation_matrix(perspective.yz_angle) *
+    Matrix ret = compute_zyrotation_matrix(perspective.zy_angle) *
                  compute_zxrotation_matrix(perspective.zx_angle) *
                  compute_translation_matrix(perspective.coord);
     return ret;
@@ -46,15 +46,26 @@ Matrix CoordinateSystem::compute_yzrotation_matrix(double yz_angle)
     ret[2][2] = cos(yz_angle);
     return ret;
 }
+Matrix CoordinateSystem::compute_zyrotation_matrix(double zy_angle)
+{
+    /* x軸回りの回転のための行列を計算する. */
+    Matrix ret(4, 4);
+    ret.identity();
+    ret[2][2] = cos(zy_angle);
+    ret[1][2] = sin(zy_angle);
+    ret[2][1] = -sin(zy_angle);
+    ret[1][1] = cos(zy_angle);
+    return ret;
+}
 Matrix CoordinateSystem::compute_zxrotation_matrix(double zx_angle)
 {
     /* y軸回りの回転のための行列を計算する. */
     Matrix ret(4, 4);
     ret.identity();
-    ret[0][0] = cos(zx_angle);
-    ret[2][0] = sin(zx_angle);
-    ret[0][2] = -sin(zx_angle);
     ret[2][2] = cos(zx_angle);
+    ret[0][2] = sin(zx_angle);
+    ret[2][0] = -sin(zx_angle);
+    ret[0][0] = cos(zx_angle);
     return ret;
 }
 

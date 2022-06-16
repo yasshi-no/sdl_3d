@@ -14,6 +14,7 @@ public:
     static Matrix compute_translation_matrix(Coordinate coord);
     static Matrix compute_xyrotation_matrix(double xy_angle);
     static Matrix compute_yzrotation_matrix(double yz_angle);
+    static Matrix compute_zyrotation_matrix(double zy_angle);
     static Matrix compute_zxrotation_matrix(double zx_angle);
 };
 

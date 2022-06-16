@@ -62,8 +62,8 @@ void Coordinate::set_z(double val) { v[2][0] = val; }
 void Coordinate::set_w(double val) { v[3][0] = val; }
 
 /* Perspectiveクラス */
-Perspective::Perspective(Coordinate coord, double zx_angle, double yz_angle)
-    : coord(coord), zx_angle(zx_angle), yz_angle(yz_angle)
+Perspective::Perspective(Coordinate coord, double zx_angle, double zy_angle)
+    : coord(coord), zx_angle(zx_angle), zy_angle(zy_angle)
 {
     /* coordにより視点の位置を決定する. その後に視点の方向をfoo_angleで決定する.
         決定の順番に注意.
@@ -72,12 +72,12 @@ Perspective::Perspective(Coordinate coord, double zx_angle, double yz_angle)
 Perspective Perspective::operator+(const Perspective& perspective) const
 {
     Perspective ret(coord + perspective.coord, zx_angle + perspective.zx_angle,
-                    yz_angle + perspective.yz_angle);
+                    zy_angle + perspective.zy_angle);
     return ret;
 }
 Perspective Perspective::operator-() const
 {
     /* 全ての成分を反転させる. */
-    Perspective ret(-coord, -zx_angle, -yz_angle);
+    Perspective ret(-coord, -zx_angle, -zy_angle);
     return ret;
 }

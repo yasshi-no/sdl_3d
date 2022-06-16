@@ -51,6 +51,22 @@ void Application::close()
     SDL_Quit();
 }
 
+Perspective Application::compute_new_perspective(Perspective perspective,
+                                                 Perspective perspective_change)
+{
+    /* 新しい視点の位置を計算する. */
+    // 視点の方向に進むよう回転
+    Matrix affine = CoordinateSystem::compute_affine_transformation_matrix(
+        Perspective(Coordinate(0.0, 0.0, 0.0), perspective.zx_angle,
+                    -perspective.zy_angle));
+    // 回転した変化量を格納
+    Perspective rotationed_perspective_change(
+        Coordinate(affine * perspective_change.coord),
+        perspective_change.zx_angle, perspective_change.zy_angle);
+    Perspective ret = perspective + rotationed_perspective_change;
+    return ret;
+}
+
 void Application::run()
 {
     // スクリーンを管理するオブジェクト
@@ -67,9 +83,6 @@ void Application::run()
     // Perspectiveの変化量
     Perspective perspective_change(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
 
-    // for(int i = 0; i < 3; i++) {
-    //     SDL_Log("%f %f %f\n", mat[i][0], mat[i][1], mat[i][2]);
-    // }
     // 直線のある世界を生成
     double square_length = 100.0;
     double square_z = 100.0;
@@ -79,11 +92,13 @@ void Application::run()
     local_coords.add_body(
         new Line(Coordinate(square_length, 0.0, square_z),
                  Coordinate(square_length, square_length, square_z)));
-    local_coords.add_body(
-        new Line(Coordinate(square_length, square_length, square_z),
-                 Coordinate(0.0, square_length, square_z)));
-    local_coords.add_body(new Line(Coordinate(0.0, square_length, square_z),
-                                   Coordinate(0.0, 0.0, square_z)));
+    local_coords.add_body(new Line(Coordinate(square_length, 0.0, square_z),
+                                   Coordinate(square_length, 0.0, 0.0)));
+    // local_coords.add_body(
+    //     new Line(Coordinate(square_length, square_length, square_z),
+    //              Coordinate(0.0, square_length, square_z)));
+    // local_coords.add_body(new Line(Coordinate(0.0, square_length, square_z),
+    //                                Coordinate(0.0, 0.0, square_z)));
 
     while(!quit) {
         // 描画をリセットする
@@ -96,25 +111,33 @@ void Application::run()
         // 視点の方向に進むよう回転
         Matrix affine = CoordinateSystem::compute_affine_transformation_matrix(
             Perspective(Coordinate(0.0, 0.0, 0.0), perspective.zx_angle,
-                        -perspective.yz_angle));
+                        perspective.zy_angle));
         // 回転した変化量を格納
         Perspective rotationed_perspective_change(
             Coordinate(affine * perspective_change.coord),
-            perspective_change.zx_angle, perspective_change.yz_angle);
+            perspective_change.zx_angle, perspective_change.zy_angle);
         // 変化の更新
         perspective = perspective + rotationed_perspective_change;
-        SDL_Log("now   %f %f %f, %f %f", perspective.coord.get_x(),
-                perspective.coord.get_y(), perspective.coord.get_z(),
-                perspective.zx_angle, perspective.yz_angle);
-        // SDL_Log("change%f %f %f, %f %f",
+        Perspective test(Coordinate(affine * Coordinate(0.0, 0.0, 1.0)), 0.0,
+                         0.0);
+        SDL_Log("%3.3f %.3f %.3f, %.3f %.3f", test.coord.get_x(),
+                test.coord.get_y(), test.coord.get_z(), perspective.zx_angle,
+                perspective.zy_angle);
+        // perspective = compute_new_perspective(perspective,
+        // perspective_change); SDL_Log("now   %f %f %f, %f %f",
+        // perspective.coord.get_x(),
+        //         perspective.coord.get_y(), perspective.coord.get_z(),
+        //         perspective.zx_angle, perspective.zy_angle);
+        // SDL_Log("change   %f %f %f, %f %f, %f %f",
         //         rotationed_perspective_change.coord.get_x(),
         //         rotationed_perspective_change.coord.get_y(),
         //         rotationed_perspective_change.coord.get_z(),
         //         rotationed_perspective_change.zx_angle,
-        //         rotationed_perspective_change.yz_angle);
+        //         rotationed_perspective_change.yz_angle, perspective.zx_angle,
+        //         perspective.yz_angle);
         // 視点の方向の変化を初期化
         perspective_change.zx_angle = 0.0;
-        perspective_change.yz_angle = 0.0;
+        perspective_change.zy_angle = 0.0;
         // 画面描画までの各種変換
         WorldCoordinateSystem world_coords;
         world_coords.add_bodys(local_coords,
@@ -209,8 +232,8 @@ void Application::run()
                     break;
                 case SDL_MOUSEMOTION:
                     // 回転の操作
-                    perspective_change.zx_angle = -event.motion.xrel * 0.01;
-                    perspective_change.yz_angle = -event.motion.yrel * 0.01;
+                    perspective_change.zx_angle = event.motion.xrel * 0.01;
+                    perspective_change.zy_angle = event.motion.yrel * 0.01;
                 default:
                     break;
             }

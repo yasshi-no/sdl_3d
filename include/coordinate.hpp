@@ -34,8 +34,8 @@ class Perspective
 public:
     Coordinate coord;
     double zx_angle;
-    double yz_angle;
-    Perspective(Coordinate coord, double zx_angle, double yz_angle);
+    double zy_angle;
+    Perspective(Coordinate coord, double zx_angle, double zy_angle);
     Perspective operator+(const Perspective& perspective) const;
     Perspective operator-() const;
 };
