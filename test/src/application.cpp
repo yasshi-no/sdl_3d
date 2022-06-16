@@ -82,6 +82,8 @@ void Application::run() {
     // 直線のある世界を生成
     LocalCoordinateSystem rectangular = create_rectangular(100, 200, 300, Color(255, 0, 0, 255));
     LocalCoordinateSystem cube = create_cube(150, Color(0, 128, 128, 255));
+    // rectangular.add_body(new Line(Coordinate(0, 0, 0), Coordinate(500, 0, 0), Color(255, 0, 0, 255)));
+    // rectangular.add_body(new Line(Coordinate(0, 0, 300), Coordinate(500, 0, 300), Color(255, 0, 0, 255)));
 
     while(!quit) {
         // 描画をリセットする
@@ -97,14 +99,16 @@ void Application::run() {
 
         // 回転した変化量を格納より, 新しい視点の位置と方向を計算する.
         perspective = compute_new_perspective(perspective, perspective_change);
-        // SDL_Log("change   %f %f %f, %f %f, %f %f",
-        //         rotationed_perspective_change.coord.get_x(),
-        //         rotationed_perspective_change.coord.get_y(),
-        //         rotationed_perspective_change.coord.get_z(),
-        //         rotationed_perspective_change.zx_angle,
-        //         rotationed_perspective_change.yz_angle, perspective.zx_angle,
-        //         perspective.yz_angle);
-
+        char perspective_string[128]; // 現在の座標についての文字列
+        snprintf(perspective_string, 256, "\nx:%8.2f\ny:%8.2f\nz:%8.2f\nzx:%8.2f\nzy:%8.2f",
+                 perspective.coord.get_x(),
+                 perspective.coord.get_y(),
+                 perspective.coord.get_z(),
+                 perspective.zx_angle,
+                 perspective.zy_angle);
+        free(perspective_string);
+        // sprintf(perspective_string, "\n\0");
+        SDL_Log(perspective_string);
         // 視点の方向の変化を初期化
         perspective_change.zx_angle = 0.0;
         perspective_change.zy_angle = 0.0;
@@ -112,7 +116,7 @@ void Application::run() {
         // WorldCoordinateSystemにLocalCoodinateSystemを追加する
         WorldCoordinateSystem world_coords;
         world_coords.add_bodys(rectangular, Perspective(Coordinate(0, 0, 0), 0, 0));
-        world_coords.add_bodys(cube, Perspective(Coordinate(100, 200, 300), 0.5, 0));
+        world_coords.add_bodys(cube, Perspective(Coordinate(200, -200, 300), 0.5, 0.5));
 
         // WorldCoordinateSystemをCameraCoodinateSystemに変換する
         CameraCoordinateSystem camera_coords(world_coords, -perspective);
