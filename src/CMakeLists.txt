@@ -5,12 +5,16 @@ message(STATUS SDL2_LIBRARIES:${SDL2_LIBRARIES})
 
 # sdl_3d
 add_library(sdl_3d INTERFACE)
+target_include_directories(sdl_3d INTERFACE
+    ../include
+)
 target_link_libraries(sdl_3d INTERFACE
     matrix
     coordinate_system
     coordinate
     screen
     body
+    local_coordinate_assets
 )
 target_compile_features(sdl_3d INTERFACE cxx_std_11)
 
@@ -48,6 +52,17 @@ target_link_libraries(coordinate_system PUBLIC
     matrix
     coordinate
     screen
+)
+target_compile_features(coordinate_system INTERFACE cxx_std_11)
+
+# local_coordinates_assets
+add_library(local_coordinate_assets STATIC local_coordinate_assets.cpp ../include/local_coordinate_assets.hpp)
+target_include_directories(local_coordinate_assets PUBLIC
+    ../include/
+)
+target_link_libraries(local_coordinate_assets PUBLIC
+    body
+    coordinate_system
 )
 target_compile_features(coordinate_system INTERFACE cxx_std_11)
 

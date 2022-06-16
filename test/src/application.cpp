@@ -31,7 +31,7 @@ bool Application::init()
         return false;
     }
 
-    SDL_SetWindowTitle(window, "pendulum simulation");
+    SDL_SetWindowTitle(window, "sdl 3d");
 
     return true;
 }
@@ -81,7 +81,7 @@ void Application::run()
     // 視点の位置と角度の変化について
     Perspective perspective(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
     double change_length = 20.0;
-    double change_angle = 0.05;
+    double change_angle = 0.01;
 
     double pi = 3.14;
 
@@ -91,19 +91,22 @@ void Application::run()
     // 直線のある世界を生成
     double square_length = 100.0;
     double square_z = 100.0;
-    LocalCoordinateSystem local_coords;
-    local_coords.add_body(new Line(Coordinate(0.0, 0.0, square_z),
-                                   Coordinate(square_length, 0.0, square_z)));
-    local_coords.add_body(
-        new Line(Coordinate(square_length, 0.0, square_z),
-                 Coordinate(square_length, square_length, square_z)));
-    local_coords.add_body(new Line(Coordinate(square_length, 0.0, square_z),
-                                   Coordinate(square_length, 0.0, 0.0)));
+    // LocalCoordinateSystem local_coords;
+    // local_coords.add_body(new Line(Coordinate(0.0, 0.0, square_z),
+    //                                Coordinate(square_length, 0.0,
+    //                                square_z)));
+    // local_coords.add_body(
+    //     new Line(Coordinate(square_length, 0.0, square_z),
+    //              Coordinate(square_length, square_length, square_z)));
+    // local_coords.add_body(new Line(Coordinate(square_length, 0.0, square_z),
+    //                                Coordinate(square_length, 0.0, 0.0)));
     // local_coords.add_body(
     //     new Line(Coordinate(square_length, square_length, square_z),
     //              Coordinate(0.0, square_length, square_z)));
     // local_coords.add_body(new Line(Coordinate(0.0, square_length, square_z),
     //                                Coordinate(0.0, 0.0, square_z)));
+    LocalCoordinateSystem rectangular = create_rectangular(100, 200, 300);
+    LocalCoordinateSystem cube = create_cube(150);
 
     while(!quit) {
         // 描画をリセットする
@@ -143,8 +146,10 @@ void Application::run()
         perspective_change.zy_angle = 0.0;
         // 画面描画までの各種変換
         WorldCoordinateSystem world_coords;
-        world_coords.add_bodys(local_coords,
+        world_coords.add_bodys(rectangular,
                                Perspective(Coordinate(0, 0, 0), 0, 0));
+        world_coords.add_bodys(cube,
+                               Perspective(Coordinate(100, 200, 300), 0.5, 0));
         CameraCoordinateSystem camera_coords(world_coords, -perspective);
         ProjectionCoordinateSystem proj_coords(
             camera_coords, screen_width, screen_height, 1, 10000, pi / 3.0);
@@ -235,8 +240,10 @@ void Application::run()
                     break;
                 case SDL_MOUSEMOTION:
                     // 回転の操作
-                    perspective_change.zx_angle = event.motion.xrel * 0.01;
-                    perspective_change.zy_angle = event.motion.yrel * 0.01;
+                    perspective_change.zx_angle =
+                        event.motion.xrel * change_angle;
+                    perspective_change.zy_angle =
+                        event.motion.yrel * change_angle;
                 default:
                     break;
             }
