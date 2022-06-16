@@ -73,6 +73,7 @@ void Application::run() {
     Perspective perspective(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
     double change_length = 20.0;
     double change_angle = 0.01;
+    double view_angle = 1.0;
 
     double pi = 3.14;
 
@@ -100,7 +101,7 @@ void Application::run() {
         // 回転した変化量を格納より, 新しい視点の位置と方向を計算する.
         perspective = compute_new_perspective(perspective, perspective_change);
         char perspective_string[128]; // 現在の座標についての文字列
-        snprintf(perspective_string, 256, "\nx:%8.2f\ny:%8.2f\nz:%8.2f\nzx:%8.2f\nzy:%8.2f",
+        snprintf(perspective_string, 256, "\nx: %8.2f\ny: %8.2f\nz: %8.2f\nzx:%8.2f\nzy:%8.2f",
                  perspective.coord.get_x(),
                  perspective.coord.get_y(),
                  perspective.coord.get_z(),
@@ -122,7 +123,7 @@ void Application::run() {
         CameraCoordinateSystem camera_coords(world_coords, -perspective);
 
         // CameraCoodinateSystemをProjectionCoordinateSystemに変換する
-        ProjectionCoordinateSystem proj_coords(camera_coords, screen_width, screen_height, 1, 10000, pi / 3.0);
+        ProjectionCoordinateSystem proj_coords(camera_coords, screen_width, screen_height, 1, 10000, view_angle);
 
         // ScreenCoordinateSystemの描画
         screen.set_draw_color(Color(255, 255, 255, SDL_ALPHA_OPAQUE));
@@ -197,6 +198,14 @@ void Application::run() {
                 case SDLK_DOWN:
                     // 下への移動を無効にする
                     perspective_change.coord.set_y(0.0);
+                    break;
+                case SDLK_RIGHT:
+                    // 視野を広くする
+                    view_angle += change_angle;
+                    break;
+                case SDLK_LEFT:
+                    // 視野を狭くする
+                    view_angle -= change_angle;
                     break;
                 default: break;
                 }
