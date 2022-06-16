@@ -19,6 +19,7 @@ public:
     Coordinate operator+(const Coordinate& coord) const;
     Coordinate operator-() const;
     void normalize();
+    void normalize_norm();
     double get_x() const;
     double get_y() const;
     double get_z() const;

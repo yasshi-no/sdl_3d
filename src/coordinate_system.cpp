@@ -68,6 +68,26 @@ Matrix CoordinateSystem::compute_zxrotation_matrix(double zx_angle)
     ret[0][0] = cos(zx_angle);
     return ret;
 }
+static Matrix compute_rodrigues_rotatin_matrix(Coordinate coord, double angle)
+{
+    /* 任意軸の回転のための行列. coordは回転軸. angleは右ねじの向き. */
+    Matrix ret(4, 4);
+    ret.identity();
+    // 与えられた軸のベクトルを単位ベクトルに変換する.
+    coord.normalize_norm();
+    // coord及びangleを使いやすいように変換
+    double x = coord.get_x(), y = coord.get_y(), z = coord.get_z();
+    double cs = cos(angle), sn = sin(angle);
+    double cs1 = 1 - cs;
+    // 行列
+    ret[0][0] = x * x * cs1 + cs, ret[0][1] = x * y * cs1 - z * sn,
+    ret[0][2] = x * z * cs1 + y * sn;
+    ret[1][0] = x * y * cs1 + z * sn, ret[1][1] = y * y * cs1 + cs,
+    ret[1][2] = y * z * cs1 - x * sn;
+    ret[2][0] = x * z * cs1 - y * sn, ret[2][1] = y * z * cs1 + x * sn,
+    ret[2][2] = z * z * cs1 + cs;
+    return ret;
+}
 
 /* LocalCoordinateSystemクラス */
 LocalCoordinateSystem::LocalCoordinateSystem() {}

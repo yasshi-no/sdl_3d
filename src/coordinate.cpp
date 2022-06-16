@@ -1,3 +1,4 @@
+#include <cmath>
 #include <coordinate.hpp>
 #include <matrix.hpp>
 #include <vector>
@@ -51,6 +52,15 @@ void Coordinate::normalize()
     set_y(get_y() / w);
     set_z(get_z() / w);
     set_w(1.0);
+}
+void Coordinate::normalize_norm()
+{
+    /* 単位ベクトルに変換する. */
+    double x = get_x(), y = get_y(), z = get_z();
+    double dist = sqrt(x * x, y * y, z * z);
+    set_x(x / dist);
+    set_y(y / dist);
+    set_z(z / dist);
 }
 double Coordinate::get_x() const { return v[0][0]; }
 double Coordinate::get_y() const { return v[1][0]; }
