@@ -55,14 +55,19 @@ Perspective Application::compute_new_perspective(Perspective perspective,
                                                  Perspective perspective_change)
 {
     /* 新しい視点の位置を計算する. */
-    // 視点の方向に進むよう回転
-    Matrix affine = CoordinateSystem::compute_affine_transformation_matrix(
-        Perspective(Coordinate(0.0, 0.0, 0.0), perspective.zx_angle,
-                    -perspective.zy_angle));
-    // 回転した変化量を格納
+    Matrix zx_rotation_matrix = CoordinateSystem::compute_zxrotation_matrix(
+        perspective.zx_angle);  // y軸回転の行列
+    Coordinate rotaioned_x =
+        zx_rotation_matrix * Coordinate(1.0, 0.0, 0.0);  // y軸回転で移動したx軸
+    Matrix rodrigues_matrix =
+        CoordinateSystem::compute_rodrigues_rotatin_matrix(
+            rotaioned_x,
+            -perspective.zy_angle);  // y軸回転で移動したx軸を軸とした回転行列
     Perspective rotationed_perspective_change(
-        Coordinate(affine * perspective_change.coord),
+        Coordinate(rodrigues_matrix * zx_rotation_matrix *
+                   perspective_change.coord),
         perspective_change.zx_angle, perspective_change.zy_angle);
+    // 変化の更新
     Perspective ret = perspective + rotationed_perspective_change;
     return ret;
 }
@@ -112,17 +117,15 @@ void Application::run()
         Matrix affine = CoordinateSystem::compute_affine_transformation_matrix(
             Perspective(Coordinate(0.0, 0.0, 0.0), perspective.zx_angle,
                         perspective.zy_angle));
-        // 回転した変化量を格納
-        Perspective rotationed_perspective_change(
-            Coordinate(affine * perspective_change.coord),
-            perspective_change.zx_angle, perspective_change.zy_angle);
-        // 変化の更新
-        perspective = perspective + rotationed_perspective_change;
-        Perspective test(Coordinate(affine * Coordinate(0.0, 0.0, 1.0)), 0.0,
-                         0.0);
-        SDL_Log("%3.3f %.3f %.3f, %.3f %.3f", test.coord.get_x(),
-                test.coord.get_y(), test.coord.get_z(), perspective.zx_angle,
-                perspective.zy_angle);
+
+        // 回転した変化量を格納より, 新しい視点の位置と方向を計算する.
+        perspective = compute_new_perspective(perspective, perspective_change);
+        // Perspective test(Coordinate(rodrigues_matrix * zx_rotation_matrix *
+        //                             Coordinate(0.0, 0.0, 1.0)),
+        //                  0.0, 0.0);
+        // SDL_Log("%3.3f %.3f %.3f, %.3f %.3f", test.coord.get_x(),
+        //         test.coord.get_y(), test.coord.get_z(), perspective.zx_angle,
+        //         perspective.zy_angle);
         // perspective = compute_new_perspective(perspective,
         // perspective_change); SDL_Log("now   %f %f %f, %f %f",
         // perspective.coord.get_x(),

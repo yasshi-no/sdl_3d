@@ -68,7 +68,8 @@ Matrix CoordinateSystem::compute_zxrotation_matrix(double zx_angle)
     ret[0][0] = cos(zx_angle);
     return ret;
 }
-static Matrix compute_rodrigues_rotatin_matrix(Coordinate coord, double angle)
+Matrix CoordinateSystem::compute_rodrigues_rotatin_matrix(Coordinate coord,
+                                                          double angle)
 {
     /* 任意軸の回転のための行列. coordは回転軸. angleは右ねじの向き. */
     Matrix ret(4, 4);

@@ -57,7 +57,7 @@ void Coordinate::normalize_norm()
 {
     /* 単位ベクトルに変換する. */
     double x = get_x(), y = get_y(), z = get_z();
-    double dist = sqrt(x * x, y * y, z * z);
+    double dist = sqrt(x * x + y * y + z * z);
     set_x(x / dist);
     set_y(y / dist);
     set_z(z / dist);
