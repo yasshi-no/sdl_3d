@@ -100,7 +100,8 @@ void Application::run() {
 
         // 現在の視点の位置と方向を計算
         // 視点の方向に進むよう回転
-        Matrix affine = CoordinateSystem::compute_affine_transformation_matrix(Perspective(Coordinate(0.0, 0.0, 0.0), perspective.zx_angle, perspective.zy_angle));
+        Matrix affine = CoordinateSystem::compute_affine_transformation_matrix(
+            Perspective(Coordinate(0.0, 0.0, 0.0), perspective.zx_angle, perspective.zy_angle));
 
         // 回転した変化量を格納より, 新しい視点の位置と方向を計算する.
         perspective = compute_new_perspective(perspective, perspective_change);

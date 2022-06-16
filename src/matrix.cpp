@@ -2,10 +2,14 @@
 #include <vector>
 
 /* Matrixクラス */
-Matrix::Matrix(const vector<vector<double>> &v) : row(v.size()), column(v.front().size()), v(v) { /* 2次元double配列vを行列に変換 */
+Matrix::Matrix(const vector<vector<double>> &v)
+    : row(v.size()), column(v.front().size()), v(v) {
+    /* 2次元double配列vを行列に変換 */
 }
 
-Matrix::Matrix(int row, int column) : row(row), column(column), v(vector<vector<double>>(row, vector<double>(column))) { /* 行列のサイズのみ指定 */
+Matrix::Matrix(int row, int column)
+    : row(row), column(column), v(vector<vector<double>>(row, vector<double>(column))) {
+    /* 行列のサイズのみ指定 */
 }
 
 Matrix Matrix::operator*(const Matrix &mat) const {

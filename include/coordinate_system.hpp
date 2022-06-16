@@ -62,7 +62,8 @@ private:
     Matrix compute_projection_matrix(int width, int height, double near, double far, double view_angle);
 
 public:
-    ProjectionCoordinateSystem(CameraCoordinateSystem camera_Coordinate_system, int width, int height, double near, double far, double view_angle);
+    ProjectionCoordinateSystem(
+        CameraCoordinateSystem camera_Coordinate_system, int width, int height, double near, double far, double view_angle);
     vector<LocalCoordinateSystem> get_local_coords();
 };
 

@@ -7,7 +7,9 @@
 /* CoordinateSystemクラス */
 Matrix CoordinateSystem::compute_affine_transformation_matrix(Perspective perspective) {
     /* アフィン変換行列を計算する. なお, 平行移動してから回転する. */
-    Matrix ret = compute_zyrotation_matrix(perspective.zy_angle) * compute_zxrotation_matrix(perspective.zx_angle) * compute_translation_matrix(perspective.coord);
+    Matrix ret = compute_zyrotation_matrix(perspective.zy_angle) *
+                 compute_zxrotation_matrix(perspective.zx_angle) *
+                 compute_translation_matrix(perspective.coord);
     return ret;
 }
 Matrix CoordinateSystem::compute_translation_matrix(Coordinate coord) {
@@ -143,7 +145,8 @@ CameraCoordinateSystem::CameraCoordinateSystem(WorldCoordinateSystem world_coord
 vector<LocalCoordinateSystem> CameraCoordinateSystem::get_local_coords() { return local_coords; }
 
 /* ProjectionCoordinateClass */
-ProjectionCoordinateSystem::ProjectionCoordinateSystem(CameraCoordinateSystem camera_coordinate_system, int width, int height, double near, double far, double view_angle) {
+ProjectionCoordinateSystem::ProjectionCoordinateSystem(
+    CameraCoordinateSystem camera_coordinate_system, int width, int height, double near, double far, double view_angle) {
     // 射影変換行列で各LocalCoordinateSystemオブジェクトを変換して追加する
     local_coords = vector<LocalCoordinateSystem>();
     Matrix matrix = compute_projection_matrix(width, height, near, far,
@@ -155,7 +158,8 @@ ProjectionCoordinateSystem::ProjectionCoordinateSystem(CameraCoordinateSystem ca
         local_coords.push_back(local_coord);
     }
 }
-Matrix ProjectionCoordinateSystem::compute_projection_matrix(int width, int height, double near, double far, double view_angle) {
+Matrix ProjectionCoordinateSystem::compute_projection_matrix(
+    int width, int height, double near, double far, double view_angle) {
     /* 射影変換行列を計算する. */
     Matrix ret(4, 4);
     ret.zeros();
@@ -168,7 +172,8 @@ Matrix ProjectionCoordinateSystem::compute_projection_matrix(int width, int heig
 vector<LocalCoordinateSystem> ProjectionCoordinateSystem::get_local_coords() { return local_coords; }
 
 /* ScreenCoordinateSystemクラス */
-ScreenCoordinateSystem::ScreenCoordinateSystem(ProjectionCoordinateSystem projection_coordinate_system, int width, int height) : width(width), height(height) {
+ScreenCoordinateSystem::ScreenCoordinateSystem(
+    ProjectionCoordinateSystem projection_coordinate_system, int width, int height) : width(width), height(height) {
     Matrix matrix = compute_screen_transformation_matrix();
     // 透視投影の座標系をスクリーンの座標系に変換して格納
     for(auto &&local_coord : projection_coordinate_system.get_local_coords()) {
