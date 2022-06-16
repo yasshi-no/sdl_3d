@@ -23,9 +23,11 @@ private:
     // 直線の端点の座標
     Coordinate coord1;
     Coordinate coord2;
+    Color color;
 
 public:
     Line(Coordinate coord1, Coordinate coord2);
+    Line(Coordinate coord1, Coordinate coord2, Color color);
     ~Line();
     void transform(const Matrix &matrix);
     void transform_and_div(const Matrix &matrix);

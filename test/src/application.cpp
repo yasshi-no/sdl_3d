@@ -80,14 +80,14 @@ void Application::run() {
     Perspective perspective_change(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
 
     // 直線のある世界を生成
-    LocalCoordinateSystem rectangular = create_rectangular(100, 200, 300);
-    LocalCoordinateSystem cube = create_cube(150);
+    LocalCoordinateSystem rectangular = create_rectangular(100, 200, 300, Color(255, 0, 0, 255));
+    LocalCoordinateSystem cube = create_cube(150, Color(0, 128, 128, 255));
 
     while(!quit) {
         // 描画をリセットする
         screen.clear();
         // 背景の更新
-        screen.set_draw_color(Color(0, 0, 0, SDL_ALPHA_OPAQUE));
+        screen.set_draw_color(Color(240, 255, 255, SDL_ALPHA_OPAQUE));
         screen.fill_rect();
 
         // 現在の視点の位置と方向を計算

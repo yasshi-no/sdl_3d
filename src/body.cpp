@@ -27,7 +27,8 @@ Body *Body::clone() {
 }
 
 /* Lineクラス */
-Line::Line(Coordinate coord1, Coordinate coord2) : coord1(coord1), coord2(coord2) {}
+Line::Line(Coordinate coord1, Coordinate coord2) : coord1(coord1), coord2(coord2), color(Color(255, 255, 255, 255)) {}
+Line::Line(Coordinate coord1, Coordinate coord2, Color color) : coord1(coord1), coord2(coord2), color(color) {}
 Line::~Line() {}
 void Line::transform(const Matrix &matrix) {
     /* 座標を行列変換する. */
@@ -44,6 +45,9 @@ void Line::transform_and_div(const Matrix &matrix) {
 }
 void Line::draw(const Screen &screen) const {
     /* 直線を描画する. */
+    // 色の変更
+    screen.set_draw_color(color);
+    // 直線の描画
     screen.draw_line(coord1.get_x(), coord1.get_y(), coord2.get_x(), coord2.get_y());
     return;
 }
