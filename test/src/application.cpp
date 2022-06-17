@@ -8,7 +8,7 @@
 using namespace std;
 
 Application::Application(int screen_width, int screen_height)
-    : screen_width(screen_width), screen_height(screen_height) { init(); }
+    : screen_width(screen_width), screen_height(screen_height), font_size(15) { init(); }
 
 bool Application::init() {
     /* SDLを初期化する
@@ -30,6 +30,14 @@ bool Application::init() {
     // SDL_ttfの初期化
     if(TTF_Init() == -1) {
         SDL_Log("ttf load fail\n");
+    }
+
+    // フォント
+    font = TTF_OpenFont("../../font/Yomogi/Yomogi-Regular.ttf", font_size);
+    if(font == nullptr) {
+        SDL_Log("font failed\n");
+        SDL_Log("%s", TTF_GetError());
+        SDL_Log("%d\n", font);
     }
 
     // windowのタイトルの設定
@@ -70,16 +78,36 @@ Perspective Application::compute_new_perspective(Perspective perspective, Perspe
     return ret;
 }
 
-void Application::run() {
-    // フォント
-    TTF_Font *font = TTF_OpenFont("../../font/Yomogi/Yomogi-Regular.ttf", 15);
-    if(font == nullptr) {
-        SDL_Log("font failed\n");
-        SDL_Log("%s", TTF_GetError());
-        SDL_Log("%d\n", font);
-    }
+void Application::render_perspective_textures(Perspective perspective) {
+    /* 座標が書かれたSDL_Textureをコピーする */
+    char perspective_string[128]; // 現在の座標についての文字列
+    snprintf(perspective_string, 256, u8"x: %8.2f\ny: %8.2f\nz: %8.2f\nzx:%8.2f\nzy:%8.2f",
+             perspective.coord.get_x(),
+             perspective.coord.get_y(),
+             perspective.coord.get_z(),
+             perspective.zx_angle,
+             perspective.zy_angle);
 
+    // 座標を描画
     SDL_Color string_color = SDL_Color{0, 0, 0, 255}; // 文字の色
+    SDL_Surface *string_surface = TTF_RenderUTF8_Blended_Wrapped(
+        font, perspective_string, string_color, 500);                            // 座標が書かれたSDL_Surface
+    SDL_Rect string_rect = SDL_Rect{0, 0, string_surface->w, string_surface->h}; // 文字のサイズ
+    SDL_Rect string_pos = SDL_Rect{0, 0, string_surface->w, string_surface->h};  // 文字の配置位置
+    // SDL_Textureに変換する
+    SDL_Texture *string_texture = SDL_CreateTextureFromSurface(screen_renderer, string_surface);
+    SDL_FreeSurface(string_surface);
+    if(string_surface == nullptr) {
+        SDL_Log("screen surface cant");
+    }
+    free(perspective_string);
+    // SDL_rendererにコピーする
+    SDL_RenderCopy(screen_renderer, string_texture, &string_rect, &string_pos);
+    // 解放
+    SDL_DestroyTexture(string_texture);
+}
+
+void Application::run() {
 
     // スクリーンを管理するオブジェクト
     Screen screen(screen_renderer);
@@ -100,6 +128,8 @@ void Application::run() {
     LocalCoordinateSystem rectangular = create_rectangular(100, 200, 300, Color(255, 0, 0, 255));
     LocalCoordinateSystem cube = create_cube(150, Color(0, 128, 128, 255));
 
+    double angle = 0.0;
+
     while(!quit) {
         // 描画をリセットする
         screen.clear();
@@ -114,30 +144,9 @@ void Application::run() {
 
         // 回転した変化量を格納より, 新しい視点の位置と方向を計算する.
         perspective = compute_new_perspective(perspective, perspective_change);
-        char perspective_string[128]; // 現在の座標についての文字列
-        snprintf(perspective_string, 256, u8"x: %8.2f  y: %8.2f  z: %8.2f  zx:%8.2f  zy:%8.2f",
-                 perspective.coord.get_x(),
-                 perspective.coord.get_y(),
-                 perspective.coord.get_z(),
-                 perspective.zx_angle,
-                 perspective.zy_angle);
 
-        // 座標を描画
-        SDL_Surface *string_surface = TTF_RenderUTF8_Blended(font, perspective_string, string_color); // 座標が書かれたSDL_Surface
-        SDL_Rect string_rect = SDL_Rect{0, 0, string_surface->w, string_surface->h};                  // 文字のサイズ
-        SDL_Rect string_pos = SDL_Rect{0, 0, string_surface->w, string_surface->h};                   // 文字の配置位置
-        // SDL_Textureに変換する
-        SDL_Texture *string_texture = SDL_CreateTextureFromSurface(screen_renderer, string_surface);
-        screen.set_draw_color(Color(255, 255, 255, 255));
-        // SDL_rendererにコピーする
-        SDL_RenderCopy(screen_renderer, string_texture, &string_rect, &string_pos);
-        // 解放
-        SDL_FreeSurface(string_surface);
-        SDL_DestroyTexture(string_texture);
-        if(string_surface == nullptr) {
-            SDL_Log("screen surface cant");
-        }
-        free(perspective_string);
+        // 座標情報を描画
+        render_perspective_textures(perspective);
 
         // 視点の方向の変化を初期化
         perspective_change.zx_angle = 0.0;
@@ -146,9 +155,9 @@ void Application::run() {
         // 画面描画までの各種変換
         // WorldCoordinateSystemにLocalCoodinateSystemを追加する
         WorldCoordinateSystem world_coords;
-        world_coords.add_bodys(rectangular, Perspective(Coordinate(0, 0, 0), 0, 0));
+        world_coords.add_bodys(rectangular, Perspective(Coordinate(0, 200 * sin(angle * 10), 0), angle, 0));
         world_coords.add_bodys(cube, Perspective(Coordinate(200, -200, 300), 0.5, 0.5));
-
+        angle += 0.01;
         // WorldCoordinateSystemをCameraCoodinateSystemに変換する
         CameraCoordinateSystem camera_coords(world_coords, -perspective);
 
