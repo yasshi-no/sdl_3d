@@ -32,6 +32,7 @@ public:
     void draw(const Screen &renderer);
     void transform_and_div(const Matrix &matrix);
     bool delete_undrawable_body(double near, double far);
+    void adjust_z(double near, double far);
     vector<Body *> get_bodys();
 };
 

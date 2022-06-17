@@ -14,6 +14,7 @@ public:
     virtual void transform(const Matrix &matrix);
     virtual void transform_and_div(const Matrix &matrix);
     virtual bool should_draw(double near, double far);
+    virtual void adjust_z(double near, double far);
     virtual Body *clone();
 };
 
@@ -33,5 +34,6 @@ public:
     void transform_and_div(const Matrix &matrix);
     void draw(const Screen &screen) const;
     bool should_draw(double near, double far);
+    void adjust_z(double near, double far);
     Line *clone();
 };

@@ -123,6 +123,13 @@ bool LocalCoordinateSystem::delete_undrawable_body(double near, double far) {
     bodys = new_bodys;
     return ret;
 }
+void LocalCoordinateSystem::adjust_z(double near, double far) {
+    /* 適切なz成分になるように加工する. CameraCoordinateSystemからPerspectiveCoordinateSystemに変換する際,
+       nearやfarの境界を跨ぐような物体を描画できるようにするため. */
+    for(auto &&body : bodys) {
+        body->adjust_z(near, far);
+    }
+}
 vector<Body *> LocalCoordinateSystem::get_bodys() { return bodys; }
 
 /* WorldCoordinateSystemクラス */
@@ -161,6 +168,7 @@ ProjectionCoordinateSystem::ProjectionCoordinateSystem(
     for(auto &&local_coord : camera_coordinate_system.get_local_coords()) {
         // z軸の描画範囲の条件を満たすもののみ, 変換して追加
         local_coord.delete_undrawable_body(near, far);
+        local_coord.adjust_z(near, far);
         local_coord.transform_and_div(matrix);
         local_coords.push_back(local_coord);
     }

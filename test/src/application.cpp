@@ -28,11 +28,9 @@ bool Application::init() {
     }
 
     // SDL_ttfの初期化
-    SDL_Log("ttf load %d\n", TTF_Init());
-
-    // if(TTF_Init() == -1) {
-    //     SDL_Log("ttf load fail\n");
-    // }
+    if(TTF_Init() == -1) {
+        SDL_Log("ttf load fail\n");
+    }
 
     // windowのタイトルの設定
     SDL_SetWindowTitle(window, "sdl 3d");
@@ -155,7 +153,7 @@ void Application::run() {
         CameraCoordinateSystem camera_coords(world_coords, -perspective);
 
         // CameraCoodinateSystemをProjectionCoordinateSystemに変換する
-        ProjectionCoordinateSystem proj_coords(camera_coords, screen_width, screen_height, 1, 5000, view_angle);
+        ProjectionCoordinateSystem proj_coords(camera_coords, screen_width, screen_height, 1, 1500, view_angle);
 
         // ScreenCoordinateSystemの描画
         screen.set_draw_color(Color(255, 255, 255, SDL_ALPHA_OPAQUE));

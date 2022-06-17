@@ -21,6 +21,10 @@ bool Body::should_draw(double near, double far) {
     /* z成分は描画範囲に入っているか. */
     return false;
 }
+void Body::adjust_z(double near, double far) {
+    /* 適切なz成分になるように加工する. CameraCoordinateSystemからPerspectiveCoordinateSystemに変換する際,
+       nearやfarの境界を跨ぐような物体を描画できるようにするため. */
+}
 Body *Body::clone() {
     /* 複製した実体のポインタを返す. */
     return 0;
@@ -55,7 +59,36 @@ bool Line::should_draw(double near, double far) {
     /* z成分は描画範囲に入っているか. */
     double z1 = coord1.get_z();
     double z2 = coord2.get_z();
-    bool ret = near <= z1 && z1 <= far && near <= z2 && z2 <= far;
+    bool ret = near <= z1 && z1 <= far || near <= z2 && z2 <= far;
     return ret;
+}
+void Line::adjust_z(double near, double far) {
+    /* 適切なz成分になるように加工する. CameraCoordinateSystemからPerspectiveCoordinateSystemに変換する際,
+       nearやfarの境界を跨ぐような物体を描画できるようにするため. */
+    if(coord1.get_z() > coord2.get_z()) {
+        // swap(x1, x2), swap(y1, y2), swap(z1, z2);
+        swap(coord1, coord2);
+    }
+    double x1 = coord1.get_x(), y1 = coord1.get_y(), z1 = coord1.get_z();
+    double x2 = coord2.get_x(), y2 = coord2.get_y(), z2 = coord2.get_z();
+
+    // zが範囲外にある場合, 範囲に収まるような内分点をとる
+    // near = 100;
+    if(z1 < near) {
+        double dist = z2 - z1;
+        double t = (near - z1) / dist; // どれだけxx2に寄せればいいか
+        x1 = x1 + (x2 - x1) * t;
+        y1 = y1 + (y2 - y1) * t;
+        z1 = z1 + (z2 - z1) * t;
+    }
+    if(z2 > far) {
+        double dist = z1 - z2;
+        double t = (far - z2) / dist; // どれだけxx1に寄せればいいか
+        x2 = x2 + (x1 - x2) * t;
+        y2 = y2 + (y1 - y2) * t;
+        z2 = far;
+    }
+    coord1.set_x(x1), coord1.set_y(y1), coord1.set_z(z1);
+    coord2.set_x(x2), coord2.set_y(y2), coord2.set_z(z2);
 }
 Line *Line::clone() { return new Line(*this); }
