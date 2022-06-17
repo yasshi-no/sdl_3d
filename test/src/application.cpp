@@ -133,6 +133,9 @@ void Application::run() {
         screen.set_draw_color(Color(255, 255, 255, 255));
         // SDL_rendererにコピーする
         SDL_RenderCopy(screen_renderer, string_texture, &string_rect, &string_pos);
+        // 解放
+        SDL_FreeSurface(string_surface);
+        SDL_DestroyTexture(string_texture);
         if(string_surface == nullptr) {
             SDL_Log("screen surface cant");
         }
