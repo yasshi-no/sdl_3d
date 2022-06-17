@@ -1,3 +1,4 @@
+#include <SDL_ttf.h>
 #include <application.hpp>
 #include <cmath>
 #include <iostream>
@@ -25,6 +26,13 @@ bool Application::init() {
         std::cout << "SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
+
+    // SDL_ttfの初期化
+    SDL_Log("ttf load %d\n", TTF_Init());
+
+    // if(TTF_Init() == -1) {
+    //     SDL_Log("ttf load fail\n");
+    // }
 
     // windowのタイトルの設定
     SDL_SetWindowTitle(window, "sdl 3d");
@@ -65,6 +73,16 @@ Perspective Application::compute_new_perspective(Perspective perspective, Perspe
 }
 
 void Application::run() {
+    // フォント
+    TTF_Font *font = TTF_OpenFont("../../font/Yomogi/Yomogi-Regular.ttf", 15);
+    if(font == nullptr) {
+        SDL_Log("font failed\n");
+        SDL_Log("%s", TTF_GetError());
+        SDL_Log("%d\n", font);
+    }
+
+    SDL_Color string_color = SDL_Color{0, 0, 0, 255}; // 文字の色
+
     // スクリーンを管理するオブジェクト
     Screen screen(screen_renderer);
     bool quit = false; // メインループを終了するか否か
@@ -83,8 +101,6 @@ void Application::run() {
     // 直線のある世界を生成
     LocalCoordinateSystem rectangular = create_rectangular(100, 200, 300, Color(255, 0, 0, 255));
     LocalCoordinateSystem cube = create_cube(150, Color(0, 128, 128, 255));
-    // rectangular.add_body(new Line(Coordinate(0, 0, 0), Coordinate(500, 0, 0), Color(255, 0, 0, 255)));
-    // rectangular.add_body(new Line(Coordinate(0, 0, 300), Coordinate(500, 0, 300), Color(255, 0, 0, 255)));
 
     while(!quit) {
         // 描画をリセットする
@@ -101,18 +117,31 @@ void Application::run() {
         // 回転した変化量を格納より, 新しい視点の位置と方向を計算する.
         perspective = compute_new_perspective(perspective, perspective_change);
         char perspective_string[128]; // 現在の座標についての文字列
-        snprintf(perspective_string, 256, "\nx: %8.2f\ny: %8.2f\nz: %8.2f\nzx:%8.2f\nzy:%8.2f",
+        snprintf(perspective_string, 256, u8"x: %8.2f  y: %8.2f  z: %8.2f  zx:%8.2f  zy:%8.2f",
                  perspective.coord.get_x(),
                  perspective.coord.get_y(),
                  perspective.coord.get_z(),
                  perspective.zx_angle,
                  perspective.zy_angle);
+
+        // 座標を描画
+        SDL_Surface *string_surface = TTF_RenderUTF8_Blended(font, perspective_string, string_color); // 座標が書かれたSDL_Surface
+        SDL_Rect string_rect = SDL_Rect{0, 0, string_surface->w, string_surface->h};                  // 文字のサイズ
+        SDL_Rect string_pos = SDL_Rect{0, 0, string_surface->w, string_surface->h};                   // 文字の配置位置
+        // SDL_Textureに変換する
+        SDL_Texture *string_texture = SDL_CreateTextureFromSurface(screen_renderer, string_surface);
+        screen.set_draw_color(Color(255, 255, 255, 255));
+        // SDL_rendererにコピーする
+        SDL_RenderCopy(screen_renderer, string_texture, &string_rect, &string_pos);
+        if(string_surface == nullptr) {
+            SDL_Log("screen surface cant");
+        }
         free(perspective_string);
-        // sprintf(perspective_string, "\n\0");
-        SDL_Log(perspective_string);
+
         // 視点の方向の変化を初期化
         perspective_change.zx_angle = 0.0;
         perspective_change.zy_angle = 0.0;
+
         // 画面描画までの各種変換
         // WorldCoordinateSystemにLocalCoodinateSystemを追加する
         WorldCoordinateSystem world_coords;
@@ -123,7 +152,7 @@ void Application::run() {
         CameraCoordinateSystem camera_coords(world_coords, -perspective);
 
         // CameraCoodinateSystemをProjectionCoordinateSystemに変換する
-        ProjectionCoordinateSystem proj_coords(camera_coords, screen_width, screen_height, 1, 10000, view_angle);
+        ProjectionCoordinateSystem proj_coords(camera_coords, screen_width, screen_height, 1, 5000, view_angle);
 
         // ScreenCoordinateSystemの描画
         screen.set_draw_color(Color(255, 255, 255, SDL_ALPHA_OPAQUE));
