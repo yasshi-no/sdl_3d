@@ -8,8 +8,8 @@
 using namespace std;
 
 // 画面サイズ
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 640;
+const int SCREEN_WIDTH = 720;
+const int SCREEN_HEIGHT = 576;
 
 int main(int argc, char *argv[]) {
 #ifndef NDEBUG

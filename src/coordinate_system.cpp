@@ -178,7 +178,7 @@ Matrix ProjectionCoordinateSystem::compute_projection_matrix(
     /* 射影変換行列を計算する. */
     Matrix ret(4, 4);
     ret.zeros();
-    ret[0][0] = height / width / tan(view_angle / 2.0);
+    ret[0][0] = (double)height / (double)width / tan(view_angle / 2.0);
     ret[1][1] = 1 / tan(view_angle / 2.0);
     ret[2][2] = far / (far - near), ret[2][3] = -far * near / (far - near);
     ret[3][2] = 1.0, ret[3][3] = 0.0;

@@ -115,8 +115,11 @@ void Application::run() {
     SDL_Event event;
     // 視点の位置と角度の変化について
     Perspective perspective(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
-    double change_length = 20.0;
+    double change_length = 0.5;
     double change_angle = 0.01;
+    // 視野
+    double near = 1.0;
+    double far = 150.0;
     double view_angle = 1.0;
     // 座標を表示するか
     bool should_render_perspective = false;
@@ -125,8 +128,8 @@ void Application::run() {
     Perspective perspective_change(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
 
     // 直線のある世界を生成
-    LocalCoordinateSystem rectangular = create_rectangular(100, 200, 300, Color(255, 0, 0, 255));
-    LocalCoordinateSystem cube = create_cube(150, Color(0, 128, 128, 255));
+    LocalCoordinateSystem rectangular = create_rectangular(1, 2, 3, Color(255, 0, 0, 255));
+    LocalCoordinateSystem cube = create_cube(1.5, Color(0, 128, 128, 255));
 
     double angle = 0.0;
 
@@ -156,14 +159,14 @@ void Application::run() {
         // 画面描画までの各種変換
         // WorldCoordinateSystemにLocalCoodinateSystemを追加する
         WorldCoordinateSystem world_coords;
-        world_coords.add_bodys(rectangular, Perspective(Coordinate(0, 200 * sin(angle * 10), 0), angle, 0));
-        world_coords.add_bodys(cube, Perspective(Coordinate(200, -200, 300), 0.5, 0.5));
+        world_coords.add_bodys(rectangular, Perspective(Coordinate(0, 2 * sin(angle * 10), 0), angle, 0));
+        world_coords.add_bodys(cube, Perspective(Coordinate(2, -2, 3), 0.5, 0.5));
         angle += 0.01;
         // WorldCoordinateSystemをCameraCoodinateSystemに変換する
         CameraCoordinateSystem camera_coords(world_coords, -perspective);
 
         // CameraCoodinateSystemをProjectionCoordinateSystemに変換する
-        ProjectionCoordinateSystem proj_coords(camera_coords, screen_width, screen_height, 1, 1500, view_angle);
+        ProjectionCoordinateSystem proj_coords(camera_coords, screen_width, screen_height, near, far, view_angle);
 
         // ScreenCoordinateSystemの描画
         screen.set_draw_color(Color(255, 255, 255, SDL_ALPHA_OPAQUE));
@@ -214,6 +217,14 @@ void Application::run() {
                     // 下へ
                     perspective_change.coord.set_y(change_length);
                     break;
+                case SDLK_RIGHT:
+                    // 視野を広くする
+                    view_angle += change_angle;
+                    break;
+                case SDLK_LEFT:
+                    // 視野を狭くする
+                    view_angle -= change_angle;
+                    break;
                 default: break;
                 }
                 break;
@@ -245,14 +256,7 @@ void Application::run() {
                     // 下への移動を無効にする
                     perspective_change.coord.set_y(0.0);
                     break;
-                case SDLK_RIGHT:
-                    // 視野を広くする
-                    view_angle += change_angle;
-                    break;
-                case SDLK_LEFT:
-                    // 視野を狭くする
-                    view_angle -= change_angle;
-                    break;
+
                 default: break;
                 }
                 break;
