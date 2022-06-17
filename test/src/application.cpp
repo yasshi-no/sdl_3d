@@ -85,8 +85,8 @@ void Application::render_perspective_textures(Perspective perspective) {
              perspective.coord.get_x(),
              perspective.coord.get_y(),
              perspective.coord.get_z(),
-             perspective.zx_angle,
-             perspective.zy_angle);
+             fmod(fmod(perspective.zx_angle, 2 * PI) + 2 * PI, 2 * PI) / PI * 180.0,
+             fmod(fmod(perspective.zy_angle, 2 * PI) + 2 * PI, 2 * PI) / PI * 180.0);
 
     // 座標を描画
     SDL_Color string_color = SDL_Color{0, 0, 0, 255}; // 文字の色
@@ -118,8 +118,8 @@ void Application::run() {
     double change_length = 20.0;
     double change_angle = 0.01;
     double view_angle = 1.0;
-
-    double pi = 3.14;
+    // 座標を表示するか
+    bool should_render_perspective = false;
 
     // Perspectiveの変化量
     Perspective perspective_change(Coordinate(0.0, 0.0, 0.0), 0.0, 0.0);
@@ -146,8 +146,9 @@ void Application::run() {
         perspective = compute_new_perspective(perspective, perspective_change);
 
         // 座標情報を描画
-        render_perspective_textures(perspective);
-
+        if(should_render_perspective) {
+            render_perspective_textures(perspective);
+        }
         // 視点の方向の変化を初期化
         perspective_change.zx_angle = 0.0;
         perspective_change.zy_angle = 0.0;
@@ -181,7 +182,13 @@ void Application::run() {
                 // キーボードが押し下げられたとき
                 switch(event.key.keysym.sym) {
                 // 終了
-                case SDLK_ESCAPE: quit = true; break;
+                case SDLK_ESCAPE:
+                    quit = true;
+                    break;
+                // 座標の表示
+                case SDLK_F3:
+                    should_render_perspective = !should_render_perspective;
+                    break;
                 // 視点の移動
                 case SDLK_w:
                     // 前へ

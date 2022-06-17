@@ -12,6 +12,7 @@ private:
     SDL_Window *window;
     SDL_Renderer *screen_renderer;
     TTF_Font *font;
+    double PI = 3.14159265358979;
 
     bool init();
     bool load_media();
