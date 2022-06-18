@@ -1,3 +1,4 @@
+#include <SDL.h>
 #include <SDL_ttf.h>
 #include <application.hpp>
 #include <cmath>
