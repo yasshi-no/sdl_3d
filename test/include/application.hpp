@@ -18,7 +18,7 @@ private:
     bool init();
     bool load_media();
     void close();
-    Perspective compute_new_perspective(Perspective perspective, Perspective perspective_change);
+    Perspective compute_new_perspective(Perspective perspective, Perspective perspective_change) const;
     void render_perspective_textures(Perspective perspective);
 
 public:

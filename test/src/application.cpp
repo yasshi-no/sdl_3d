@@ -63,7 +63,7 @@ void Application::close() {
     SDL_Quit();
 }
 
-Perspective Application::compute_new_perspective(Perspective perspective, Perspective perspective_change) {
+Perspective Application::compute_new_perspective(Perspective perspective, Perspective perspective_change) const {
     /* 新しい視点の位置を計算する. */
     Matrix zx_rotation_matrix = CoordinateSystem::compute_zxrotation_matrix(perspective.zx_angle); // y軸回転の行列
     Coordinate rotaioned_x = zx_rotation_matrix * Coordinate(1.0, 0.0, 0.0);                       // y軸回転で移動したx軸

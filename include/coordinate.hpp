@@ -13,7 +13,7 @@ private:
 public:
     Coordinate(double x, double y, double z);
     Coordinate(const Matrix &matrix);
-    Coordinate &operator=(Matrix matrix);
+    Coordinate &operator=(const Matrix &matrix);
     Coordinate operator+(const Coordinate &coord) const;
     Coordinate operator-() const;
     void normalize();
@@ -34,7 +34,7 @@ public:
     Coordinate coord;
     double zx_angle;
     double zy_angle;
-    Perspective(Coordinate coord, double zx_angle, double zy_angle);
+    Perspective(const Coordinate &coord, double zx_angle, double zy_angle);
     Perspective operator+(const Perspective &perspective) const;
     Perspective operator-() const;
 };

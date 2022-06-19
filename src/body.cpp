@@ -17,7 +17,7 @@ void Body::transform(const Matrix &matrix) {
 //     /* 座標を行列変換し, w成分で全成分を割る. */
 //     return;
 // }
-bool Body::should_draw(double near, double far) {
+bool Body::should_draw(double near, double far) const {
     /* z成分は描画範囲に入っているか. */
     return false;
 }
@@ -43,7 +43,7 @@ void Body::draw(const Screen &screen, double near, double far) const {
     delete body;
     return;
 }
-Body *Body::clone() {
+Body *Body::clone() const {
     /* 複製した実体のポインタを返す. */
     return 0;
 }
@@ -79,7 +79,7 @@ void Line::draw(const Screen &screen, double near, double far) const {
     delete body;
     return;
 }
-bool Line::should_draw(double near, double far) {
+bool Line::should_draw(double near, double far) const {
     /* z成分は描画範囲に入っているか. */
     double z1 = coord1.get_z();
     double z2 = coord2.get_z();
@@ -165,4 +165,4 @@ Line *Line::make_drawable_body(double near, double far) const {
     ret->normalize();
     return ret;
 }
-Line *Line::clone() { return new Line(*this); }
+Line *Line::clone() const { return new Line(*this); }

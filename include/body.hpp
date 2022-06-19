@@ -14,12 +14,12 @@ public:
     virtual void draw(const Screen &screen, double near, double far) const;
     virtual void transform(const Matrix &matrix);
     // virtual void transform_and_div(const Matrix &matrix);
-    virtual bool should_draw(double near, double far);
+    virtual bool should_draw(double near, double far) const;
     // virtual void adjust_z(double near, double far);
     virtual void normalize();
     virtual void adjust_w(double near, double far);
     virtual Body *make_drawable_body(double near, double far) const;
-    virtual Body *clone();
+    virtual Body *clone() const;
 };
 
 class Line : public Body {
@@ -38,10 +38,10 @@ public:
     // void transform_and_div(const Matrix &matrix);
     void draw(const Screen &screen) const;
     void draw(const Screen &screen, double near, double far) const;
-    bool should_draw(double near, double far);
+    bool should_draw(double near, double far) const;
     // void adjust_z(double near, double far);
     void normalize();
     void adjust_w(double near, double far);
     Line *make_drawable_body(double near, double far) const;
-    Line *clone();
+    Line *clone() const;
 };

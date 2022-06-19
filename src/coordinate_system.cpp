@@ -5,7 +5,7 @@
 #include <matrix.hpp>
 
 /* CoordinateSystemクラス */
-Matrix CoordinateSystem::compute_affine_transformation_matrix(Perspective perspective) {
+Matrix CoordinateSystem::compute_affine_transformation_matrix(const Perspective &perspective) {
     /* アフィン変換行列を計算する. なお, 平行移動してから回転する. */
     Matrix ret = compute_zyrotation_matrix(perspective.zy_angle) *
                  compute_zxrotation_matrix(perspective.zx_angle) *
@@ -13,7 +13,7 @@ Matrix CoordinateSystem::compute_affine_transformation_matrix(Perspective perspe
     return ret;
 }
 
-Matrix CoordinateSystem::compute_translation_matrix(Coordinate coord) {
+Matrix CoordinateSystem::compute_translation_matrix(const Coordinate &coord) {
     /* 平行移動するための行列を計算する. */
     Matrix ret(4, 4);
     ret.identity();
@@ -106,14 +106,14 @@ void LocalCoordinateSystem::transform(Matrix matrix) {
 //     /* 全てのBodyオブジェクトを描画する */
 //     for(auto &&body : bodys) { body->draw(screen); }
 // }
-void LocalCoordinateSystem::draw(const Screen &screen, double near, double far) {
+void LocalCoordinateSystem::draw(const Screen &screen, double near, double far) const {
     /* 全てのBodyオブジェクトを描画する */
     for(auto &&body : bodys) { body->draw(screen, near, far); }
 }
 bool LocalCoordinateSystem::delete_undrawable_body(double near, double far) {
     /* z成分は描画範囲に入っていないBodyオブジェクトを解放する.
      * 返り値は描画するオブジェクトが存在するか*/
-    vector<Body *> new_bodys;
+    vector<Body *> new_bodys; // 新しいbodys
     bool ret = false;
     for(auto &&body : bodys) {
         if(body->should_draw(near, far)) {
@@ -124,6 +124,7 @@ bool LocalCoordinateSystem::delete_undrawable_body(double near, double far) {
             delete body;
         }
     }
+    // bodysを更新
     bodys = new_bodys;
     return ret;
 }
@@ -146,7 +147,7 @@ void WorldCoordinateSystem::add_bodys(LocalCoordinateSystem local_coordinate_sys
     local_coordinate_system.transform(matrix);
     local_coords.push_back(local_coordinate_system);
 }
-vector<LocalCoordinateSystem> WorldCoordinateSystem::get_local_coords() { return local_coords; }
+vector<LocalCoordinateSystem> WorldCoordinateSystem::get_local_coords() const { return local_coords; }
 
 /* CameraCoordinateSystemクラス */
 CameraCoordinateSystem::CameraCoordinateSystem(WorldCoordinateSystem world_coordinate_system, Perspective perspective) {
@@ -160,7 +161,7 @@ CameraCoordinateSystem::CameraCoordinateSystem(WorldCoordinateSystem world_coord
         local_coords.push_back(local_coord);
     }
 }
-vector<LocalCoordinateSystem> CameraCoordinateSystem::get_local_coords() { return local_coords; }
+vector<LocalCoordinateSystem> CameraCoordinateSystem::get_local_coords() const { return local_coords; }
 
 /* ProjectionCoordinateClass */
 ProjectionCoordinateSystem::ProjectionCoordinateSystem(
@@ -189,7 +190,7 @@ Matrix ProjectionCoordinateSystem::compute_projection_matrix(
     ret[3][2] = 1.0, ret[3][3] = 0.0;
     return ret;
 }
-vector<LocalCoordinateSystem> ProjectionCoordinateSystem::get_local_coords() { return local_coords; }
+vector<LocalCoordinateSystem> ProjectionCoordinateSystem::get_local_coords() const { return local_coords; }
 
 /* ScreenCoordinateSystemクラス */
 // ScreenCoordinateSystem::ScreenCoordinateSystem(
@@ -221,7 +222,7 @@ Matrix ScreenCoordinateSystem::compute_screen_transformation_matrix() {
     matrix[1][3] = height / 2.0;
     return matrix;
 }
-void ScreenCoordinateSystem::draw(const Screen &screen) {
+void ScreenCoordinateSystem::draw(const Screen &screen) const {
     /* 全てのLocalCoordinateSystemオブジェクトを描画する. */
     for(auto &&local_coord : local_coords) { local_coord.draw(screen, near, far); }
 }

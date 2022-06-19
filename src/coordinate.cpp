@@ -20,7 +20,7 @@ Coordinate::Coordinate(const Matrix &matrix) : Matrix(4, 1) {
     set_z(matrix[2][0]);
     set_w(matrix[3][0]);
 }
-Coordinate &Coordinate::operator=(Matrix matrix) {
+Coordinate &Coordinate::operator=(const Matrix &matrix) {
     // matrixの1列目の成分を格納
     set_x(matrix[0][0]);
     set_y(matrix[1][0]);
@@ -64,7 +64,7 @@ void Coordinate::set_z(double val) { v[2][0] = val; }
 void Coordinate::set_w(double val) { v[3][0] = val; }
 
 /* Perspectiveクラス */
-Perspective::Perspective(Coordinate coord, double zx_angle, double zy_angle)
+Perspective::Perspective(const Coordinate &coord, double zx_angle, double zy_angle)
     : coord(coord), zx_angle(zx_angle), zy_angle(zy_angle) {
     /* coordにより視点の位置を決定する. その後に視点の方向をfoo_angleで決定する.
         決定の順番に注意.

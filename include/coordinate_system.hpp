@@ -9,8 +9,8 @@ class CoordinateSystem {
     /* 物体が配置される座標系, 描画までの各変換で得られる座標系の親クラス */
 protected:
 public:
-    static Matrix compute_affine_transformation_matrix(Perspective perspective);
-    static Matrix compute_translation_matrix(Coordinate coord);
+    static Matrix compute_affine_transformation_matrix(const Perspective &perspective);
+    static Matrix compute_translation_matrix(const Coordinate &coord);
     static Matrix compute_xyrotation_matrix(double xy_angle);
     static Matrix compute_yzrotation_matrix(double yz_angle);
     static Matrix compute_zyrotation_matrix(double zy_angle);
@@ -30,7 +30,7 @@ public:
     void add_body(Body *body);
     void transform(Matrix matrix);
     // void draw(const Screen &screen);
-    void draw(const Screen &screen, double near, double far);
+    void draw(const Screen &screen, double near, double far) const;
     // void transform_and_div(const Matrix &matrix);
     bool delete_undrawable_body(double near, double far);
     // void adjust_z(double near, double far);
@@ -45,7 +45,7 @@ private:
 public:
     WorldCoordinateSystem();
     void add_bodys(LocalCoordinateSystem local_coordinate_system, Perspective perspective);
-    vector<LocalCoordinateSystem> get_local_coords();
+    vector<LocalCoordinateSystem> get_local_coords() const;
 };
 
 class CameraCoordinateSystem {
@@ -55,7 +55,7 @@ private:
 
 public:
     CameraCoordinateSystem(WorldCoordinateSystem world_Coordinate_system, Perspective perspective);
-    vector<LocalCoordinateSystem> get_local_coords();
+    vector<LocalCoordinateSystem> get_local_coords() const;
 };
 
 class ProjectionCoordinateSystem {
@@ -67,7 +67,7 @@ private:
 public:
     ProjectionCoordinateSystem(
         CameraCoordinateSystem camera_Coordinate_system, int width, int height, double near, double far, double view_angle);
-    vector<LocalCoordinateSystem> get_local_coords();
+    vector<LocalCoordinateSystem> get_local_coords() const;
 };
 
 class ScreenCoordinateSystem {
@@ -84,5 +84,5 @@ private:
 public:
     // ScreenCoordinateSystem(ProjectionCoordinateSystem projection_coordinate_system, int width, int height);
     ScreenCoordinateSystem(ProjectionCoordinateSystem projection_coordinate_system, int width, int height, double near, double far);
-    void draw(const Screen &screen);
+    void draw(const Screen &screen) const;
 };
