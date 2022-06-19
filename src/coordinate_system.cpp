@@ -98,13 +98,17 @@ void LocalCoordinateSystem::transform(Matrix matrix) {
     /* 各Bodyオブジェクトを行列変換する. */
     for(auto &&body : bodys) { body->transform(matrix); }
 }
-void LocalCoordinateSystem::transform_and_div(const Matrix &matrix) {
-    /* 各Bodyオブジェクトを行列変換し, w成分で割る. */
-    for(auto &&body : bodys) { body->transform_and_div(matrix); }
-}
-void LocalCoordinateSystem::draw(const Screen &screen) {
+// void LocalCoordinateSystem::transform_and_div(const Matrix &matrix) {
+//     /* 各Bodyオブジェクトを行列変換し, w成分で割る. */
+//     for(auto &&body : bodys) { body->transform_and_div(matrix); }
+// }
+// void LocalCoordinateSystem::draw(const Screen &screen) {
+//     /* 全てのBodyオブジェクトを描画する */
+//     for(auto &&body : bodys) { body->draw(screen); }
+// }
+void LocalCoordinateSystem::draw(const Screen &screen, double near, double far) {
     /* 全てのBodyオブジェクトを描画する */
-    for(auto &&body : bodys) { body->draw(screen); }
+    for(auto &&body : bodys) { body->draw(screen, near, far); }
 }
 bool LocalCoordinateSystem::delete_undrawable_body(double near, double far) {
     /* z成分は描画範囲に入っていないBodyオブジェクトを解放する.
@@ -123,13 +127,13 @@ bool LocalCoordinateSystem::delete_undrawable_body(double near, double far) {
     bodys = new_bodys;
     return ret;
 }
-void LocalCoordinateSystem::adjust_z(double near, double far) {
-    /* 適切なz成分になるように加工する. CameraCoordinateSystemからPerspectiveCoordinateSystemに変換する際,
-       nearやfarの境界を跨ぐような物体を描画できるようにするため. */
-    for(auto &&body : bodys) {
-        body->adjust_z(near, far);
-    }
-}
+// void LocalCoordinateSystem::adjust_z(double near, double far) {
+//     /* 適切なz成分になるように加工する. CameraCoordinateSystemからPerspectiveCoordinateSystemに変換する際,
+//        nearやfarの境界を跨ぐような物体を描画できるようにするため. */
+//     for(auto &&body : bodys) {
+//         body->adjust_z(near, far);
+//     }
+// }
 vector<Body *> LocalCoordinateSystem::get_bodys() { return bodys; }
 
 /* WorldCoordinateSystemクラス */
@@ -168,8 +172,9 @@ ProjectionCoordinateSystem::ProjectionCoordinateSystem(
     for(auto &&local_coord : camera_coordinate_system.get_local_coords()) {
         // z軸の描画範囲の条件を満たすもののみ, 変換して追加
         local_coord.delete_undrawable_body(near, far);
-        local_coord.adjust_z(near, far);
-        local_coord.transform_and_div(matrix);
+        // local_coord.adjust_z(near, far);
+        // local_coord.transform_and_div(matrix);
+        local_coord.transform(matrix);
         local_coords.push_back(local_coord);
     }
 }
@@ -187,8 +192,18 @@ Matrix ProjectionCoordinateSystem::compute_projection_matrix(
 vector<LocalCoordinateSystem> ProjectionCoordinateSystem::get_local_coords() { return local_coords; }
 
 /* ScreenCoordinateSystemクラス */
+// ScreenCoordinateSystem::ScreenCoordinateSystem(
+//     ProjectionCoordinateSystem projection_coordinate_system, int width, int height) : width(width), height(height) {
+//     Matrix matrix = compute_screen_transformation_matrix();
+//     // 透視投影の座標系をスクリーンの座標系に変換して格納
+//     for(auto &&local_coord : projection_coordinate_system.get_local_coords()) {
+//         local_coord.transform(matrix);
+//         local_coords.push_back(local_coord);
+//     }
+// }
 ScreenCoordinateSystem::ScreenCoordinateSystem(
-    ProjectionCoordinateSystem projection_coordinate_system, int width, int height) : width(width), height(height) {
+    ProjectionCoordinateSystem projection_coordinate_system, int width, int height, double near, double far)
+    : width(width), height(height), near(near), far(far) {
     Matrix matrix = compute_screen_transformation_matrix();
     // 透視投影の座標系をスクリーンの座標系に変換して格納
     for(auto &&local_coord : projection_coordinate_system.get_local_coords()) {
@@ -208,5 +223,5 @@ Matrix ScreenCoordinateSystem::compute_screen_transformation_matrix() {
 }
 void ScreenCoordinateSystem::draw(const Screen &screen) {
     /* 全てのLocalCoordinateSystemオブジェクトを描画する. */
-    for(auto &&local_coord : local_coords) { local_coord.draw(screen); }
+    for(auto &&local_coord : local_coords) { local_coord.draw(screen, near, far); }
 }

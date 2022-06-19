@@ -29,10 +29,11 @@ public:
     ~LocalCoordinateSystem();
     void add_body(Body *body);
     void transform(Matrix matrix);
-    void draw(const Screen &renderer);
-    void transform_and_div(const Matrix &matrix);
+    // void draw(const Screen &screen);
+    void draw(const Screen &screen, double near, double far);
+    // void transform_and_div(const Matrix &matrix);
     bool delete_undrawable_body(double near, double far);
-    void adjust_z(double near, double far);
+    // void adjust_z(double near, double far);
     vector<Body *> get_bodys();
 };
 
@@ -75,10 +76,13 @@ private:
     // スクリーンのサイズ
     int width;
     int height;
+    double near;
+    double far;
     vector<LocalCoordinateSystem> local_coords;
     Matrix compute_screen_transformation_matrix();
 
 public:
-    ScreenCoordinateSystem(ProjectionCoordinateSystem projection_coordinate_system, int width, int height);
+    // ScreenCoordinateSystem(ProjectionCoordinateSystem projection_coordinate_system, int width, int height);
+    ScreenCoordinateSystem(ProjectionCoordinateSystem projection_coordinate_system, int width, int height, double near, double far);
     void draw(const Screen &screen);
 };

@@ -171,7 +171,7 @@ void Application::run() {
 
         // ScreenCoordinateSystemの描画
         screen.set_draw_color(Color(255, 255, 255, SDL_ALPHA_OPAQUE));
-        ScreenCoordinateSystem screen_coords(proj_coords, screen_width, screen_height);
+        ScreenCoordinateSystem screen_coords(proj_coords, screen_width, screen_height, near, far);
         screen_coords.draw(screen);
 
         // 画面の更新

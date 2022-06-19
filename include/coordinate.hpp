@@ -9,7 +9,6 @@ class Coordinate : public Matrix {
 private:
     const vector<double> &operator[](int x) const;
     vector<double> &operator[](int x);
-    void set_w(double x); // 同次座標だからwは1.0のはずだからprivate
 
 public:
     Coordinate(double x, double y, double z);
@@ -26,6 +25,7 @@ public:
     void set_x(double x);
     void set_y(double x);
     void set_z(double x);
+    void set_w(double x);
 };
 
 class Perspective {
